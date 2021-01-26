@@ -20,7 +20,6 @@ import de.format.salzzy.Rechnungsmanager.service.UserService;
 import de.format.salzzy.Rechnungsmanager.service.VerteilerService;
 
 @Controller
-@RequestMapping("/app")
 public class VerteilerController {
 	
 	private String PDF_DIR = "C:\\Users\\salzmann\\Desktop\\Test-Umgebung\\FIBU\\Rechnungen";
@@ -85,10 +84,13 @@ public class VerteilerController {
 		});
 		
 		User user = userService.findByUsername(username);
-		
-		verteilerService.sendNotification(user, pdfs.length);
-		
-		return "redirect:/app/verteilen";
+
+		try {
+			verteilerService.sendNotification(user, pdfs.length);
+		} catch(NullPointerException e) {
+			// return error no Email exists
+		}
+		return "redirect:/verteilen";
 	}
 	
 }

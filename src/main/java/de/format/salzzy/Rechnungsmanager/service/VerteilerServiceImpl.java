@@ -54,7 +54,7 @@ public class VerteilerServiceImpl implements VerteilerService {
 		SimpleMailMessage msg = new SimpleMailMessage();
 		msg.setTo(user.getUserinfo().getEmail());
 		msg.setSubject("Es wurden Rechnungen in ihre Ablage gelegt.");
-		msg.setText(dateString + " Sie haben " + anzahl + " Rechnungen erhalten, die Sie signieren müssen!");
+		msg.setText(dateString + " Sie haben " + anzahl + " Rechnungen erhalten, die Sie freigeben müssen!");
 		
 		javaMailSender.send(msg);
 		

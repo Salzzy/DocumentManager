@@ -90,7 +90,7 @@ public class AppManager {
 		theModel.addAttribute("anzahl", fileNames.size());
 		
 		// return startseite
-		return "app/dashboard/home";
+		return "app/dashboard/index";
 	}
 	
 	

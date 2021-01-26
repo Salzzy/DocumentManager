@@ -50,7 +50,7 @@
 					<div class="col-12 text-center">
 						<p th:if="${pdfs == null or pdfs.empty}">Keine Rechnungen vorhanden!</p>
 						<!-- Frame indem die PDF geladen wird -->
-						<iframe th:if="${pdfs!=null and !pdfs.empty}" id="showPdf" th:src="'http://localhost:8080/app/pdf?name='+${pdfs[0]} +'&output=embed'"
+						<iframe th:if="${pdfs!=null and !pdfs.empty}" id="showPdf" th:src="'http://localhost:8080/pdf?name='+${pdfs[0]} +'&output=embed'"
 							style="width:600px; height:880px;" frameborder="0"></iframe>
 					</div>
 				</div>
@@ -60,9 +60,9 @@
 
 		<!-- Modal um das Stempeln der Rechnung durchzuführen -->
 		<!-- Codesnippet liegt in fragmente/modals.html -->
-		<div th:replace="fragmente/homeModals :: stempelModal"></div>
-		<div th:replace="fragmente/homeModals :: uploadRechnungModal"></div>
-		<div th:replace="fragmente/homeModals :: deleteRechnung"></div>
+		<div th:replace="app/dashboard/modals :: stempelModal"></div>
+		<div th:replace="app/dashboard/modals :: uploadRechnungModal"></div>
+		<div th:replace="app/dashboard/modals :: deleteRechnung"></div>
 
 
 		<footer th:replace="fragmente/footer :: footer(~{::script})">
@@ -74,7 +74,7 @@
 				function changeImageNext(){
 
 					var link = '';
-					var src = 'http://localhost:8080/app/pdf?name=';
+					var src = 'http://localhost:8080/pdf?name=';
 
 					if((list.indexOf(list[number])+1) < list.length) {
 						link = src + list[number + 1]
@@ -89,7 +89,7 @@
 				function changeImagePre(){
 
 					var link = '';
-					var src = 'http://localhost:8080/app/pdf?name=';
+					var src = 'http://localhost:8080/pdf?name=';
 
 					if((list.indexOf(list[number])-1) >= 0) {
 						link = src + list[number - 1]
