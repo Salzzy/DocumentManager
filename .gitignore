@@ -1,0 +1,9 @@
+.idea/
+Rechnungsmanager.iml
+target/
+application.properties
+node_modules/
+src/main/resources/static/js/**
+src/main/resources/static/css/**
+src/main/resources/static/css/!rechnungsmanager.js
+src/main/resources/static/css/!style.css

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="de">
+	<head th:replace="fragmente/head :: head(~{::title}, ~{})">
+		<title>Rechnungsordner</title>
+	</head>
+
+	<body class="black-skin">
+		<header th:replace="fragmente/menu :: menu"></header>
+
+		<main>
+			<div class="container mt-5">
+				<div class="row d-flex justify-content-center">
+					<div class="col-2"></div>
+					<div class="col-7 text-center">
+						<h1 class="h1">Folgende Rechnungen hast du in deinem Rechnungsordner</h1>
+						<h4 class="h4 text-muted">Aktuelle Rechnungen: <span th:text="${anzahl}"></span></h4>
+					</div>
+					<div class="col-2">
+						<!--Dropdown primary-->
+						<div class="dropdown mt-2">
+
+						  <!--Trigger-->
+						  <h2 class="h2" id="dropdownMenu1" data-toggle="dropdown"
+							aria-haspopup="true" aria-expanded="false"><i class="fas fa-cog text-dark"></i></h2>
+
+						  <!--Menu-->
+						  <div class="dropdown-menu dropdown-primary">
+							<a class="dropdown-item" data-toggle="modal" data-target="#modalRechnungHochladen">PDF Hochladen</a>
+							<a class="dropdown-item" data-toggle="modal" data-target="#modalDeleteRechnung">PDF Löschen</a>
+							<a class="dropdown-item" href="#" >PDF Download</a>
+						  </div>
+						</div>
+						<!--/Dropdown primary-->
+					</div>
+				</div>
+
+				<hr>
+
+				<div class="row mt-2">
+					<div class="col-12 text-center">
+						<div class="btn-group mt-2 center" role="group" aria-label="Btn Action Group">
+							<a onclick="changeImagePre()" type="button" class="btn mdb-color darken-3 btn-rounded">Vorherige</a>
+							<a class="btn mdb-color darken-3 btn-rounded" data-toggle="modal" data-target="#modalStempeln" >Stempeln</a>
+							<a onclick="changeImageNext()" type="button" class="btn mdb-color darken-3 btn-rounded">Nächste</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="row mt-2">
+					<div class="col-12 text-center">
+						<p th:if="${pdfs == null or pdfs.empty}">Keine Rechnungen vorhanden!</p>
+						<!-- Frame indem die PDF geladen wird -->
+						<iframe th:if="${pdfs!=null and !pdfs.empty}" id="showPdf" th:src="'http://localhost:8080/app/pdf?name='+${pdfs[0]} +'&output=embed'"
+							style="width:600px; height:880px;" frameborder="0"></iframe>
+					</div>
+				</div>
+			</div>
+		</main>
+
+
+		<!-- Modal um das Stempeln der Rechnung durchzuführen -->
+		<!-- Codesnippet liegt in fragmente/modals.html -->
+		<div th:replace="fragmente/homeModals :: stempelModal"></div>
+		<div th:replace="fragmente/homeModals :: uploadRechnungModal"></div>
+		<div th:replace="fragmente/homeModals :: deleteRechnung"></div>
+
+
+		<footer th:replace="fragmente/footer :: footer(~{::script})">
+			<!-- PDF Navigation -->
+			<script th:inline="javascript">
+				var list = [[${pdfs}]];
+				var number = 0;
+
+				function changeImageNext(){
+
+					var link = '';
+					var src = 'http://localhost:8080/app/pdf?name=';
+
+					if((list.indexOf(list[number])+1) < list.length) {
+						link = src + list[number + 1]
+						number++;
+					} else {
+						number = 0;
+						link = src + list[number];
+					}
+					document.getElementById("showPdf").src = link;
+				}
+
+				function changeImagePre(){
+
+					var link = '';
+					var src = 'http://localhost:8080/app/pdf?name=';
+
+					if((list.indexOf(list[number])-1) >= 0) {
+						link = src + list[number - 1]
+						number--;
+					} else {
+						number = list.length-1;
+						link = src + list[number];
+					}
+					document.getElementById("showPdf").src = link;
+				}
+			</script>
+		</footer>
+	</body>
+</html>

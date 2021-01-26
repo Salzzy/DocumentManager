@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+
+
+<!-- Stempel Modal -->
+<div class="modal fade" id="modalStempeln" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+  aria-hidden="true" th:fragment="stempelModal">
+	<div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	    	<div class="modal-header text-center">
+		        <h4 class="modal-title w-100 font-weight-bold">Rechnungsprüfung:</h4>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		        	<span aria-hidden="true">&times;</span>
+		        </button>
+	    	</div>
+	      	<form class="border border-light p-2" action="/app/stempeln">
+				
+				<input th:if="${pdfs!=null and !pdfs.empty}" type="hidden" th:value="${pdfs[0]}" id="name" name="name">
+				<!-- Material input -->
+				<div class="md-form">
+					 <input type="text" id="kostenstelle" class="form-control" name="ksst">
+					 <label for="kostenstelle">Kostenstelle</label>
+				</div>
+				<div class="form-check">
+				    <input type="checkbox" class="form-check-input" id="SachlichInOrdnung" name="sach">
+				    <label class="form-check-label" for="SachlichInOrdnung">Sachlich in Ordnung</label>
+				</div>
+				<div class="form-check">
+				    <input type="checkbox" class="form-check-input" id="PreislichInOrdnung" name="prs">
+				    <label class="form-check-label" for="PreislichInOrdnung">Preislich in Ordnung</label>
+				</div>
+				<button type="submit" class="btn btn-secondary btn-rounded mt-4">Freigeben!</button>
+			</form>
+	    </div>
+	</div>
+</div>
+
+
+
+
+<!-- Hochladen Modal -->
+<div class="modal fade" id="modalRechnungHochladen" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+  aria-hidden="true" th:fragment="uploadRechnungModal">
+	<div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	    	<div class="modal-header text-center">
+		        <h4 class="modal-title w-100 font-weight-bold">Rechnung Hochladen!</h4>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		        	<span aria-hidden="true">&times;</span>
+		        </button>
+	    	</div>
+	    	<div class="modal-body mx-3">
+		        <form id="signaturForm" enctype="multipart/form-data" th:action="@{/app/rechnungUpload}" method="POST">
+				
+					<div class="md-form mt-3 text-center">
+					    <div class="file-field">
+						    <div class="btn btn-primary btn-sm float-left">
+						    	<span>Datei auswählen</span>
+						    	<input type="file" name="file" id="file">
+						    </div>
+						    <div class="file-path-wrapper">
+						    	<input class="file-path validate" type="text" name="dateiName" id="dateiName" placeholder="Signatur hochladen">
+						    </div>
+						</div>
+						<small id="labelSize" class="form-text text-muted mb-4">
+					        Empfohlenes Format: .pdf
+					    </small>	
+		        	</div>
+		                 	
+		            <button class="btn btn-success" type="submit" id="speichern">Hochladen</button>
+				</form>
+			</div>
+	    </div>
+	</div>
+</div>
+	
+	
+	
+<!-- Löschen von Rechnung Modal -->
+<div class="modal fade" id="modalDeleteRechnung" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+  aria-hidden="true" th:fragment="deleteRechnung">
+	<div class="modal-dialog modal-sm" role="document">
+	    <div class="modal-content">
+	    	<div class="modal-header">
+		        <h4 class="modal-title w-100" id="myModalLabel">Vernichten</h4>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		        	<span aria-hidden="true">&times;</span>
+		        </button>
+	    	</div>
+	    	<div class="modal-body">
+	        	<p>Die aktuell geöffnete Rechnung soll unwiederruflich gelöschen werden?</p>
+	    	</div>
+	    	<div class="modal-footer">
+		        <a type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Abbrechen</a>
+		        <a th:if="${pdfs!=null and !pdfs.empty}" type="button" class="btn btn-danger btn-sm" th:href="'/app/delete?id=' + ${pdfs[0]}">Ja</a>
+	    	</div>
+	    </div>
+	</div>
+</div>
+
+
+
+</html>

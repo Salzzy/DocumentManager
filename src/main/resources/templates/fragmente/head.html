@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head  th:fragment="head(title, links)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title th:replace="${title}">Rechnungsmanager</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" >
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" th:href="@{/css/mdb.min.css}" >
+    <!-- Selfmade Design  -->
+    <link rel="stylesheet" th:href="@{/css/style.css}" >
+    <!--/* Per-page placeholder for additional links */-->
+    <th:block th:replace="${links}" />
+</head>
+
+</html>

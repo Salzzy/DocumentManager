@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="de">
+	<head th:replace="fragmente/head :: head(~{::title}, ~{})">
+		<title>Einstellungen - Rechnungsmanager</title>
+	</head>
+
+	<body class="black-skin">
+		<header th:replace="fragmente/menu :: menu"></header>
+
+
+		<main class="mt-3">
+			<div class="container">
+				<div class="row">
+					<div class="col-12">
+						<h1 class="h1">Profileinstellungen von: <span sec:authentication="name"></span></h1>
+						<h4 class="h4 text-muted">Zugewiesene Rollen: <span sec:authentication="principal.authorities"></span></h4>
+					</div>
+				</div>
+
+				<div class="row mt-5">
+					<div class="col-6">
+						<form id="profilForm" th:action="@{/app/save}" th:object="${userinfo}" method="POST">
+							<p class="h4 mb-4">Persönliche Daten:</p>
+
+							<div class="md-form">
+								<input type="email" id="email" name="email" th:field="*{email}" class="form-control mb-4" >
+								<label for="email">E-Mail</label>
+							</div>
+
+							<div class="md-form">
+								<input type="text" id="abteilung" name="abteilung" th:field="*{abteilung}" class="form-control mb-4">
+								<label for="abteilung">Abteilung</label>
+							</div>
+
+							<div class="md-form">
+								<!-- Phone number -->
+								<input type="tel" id="telefonnummer" name="telefonnummer" th:field="*{telefonnr}" class="form-control" aria-describedby="defaultRegisterFormPhoneHelpBlock">
+								<small id="telefonnummer" class="form-text text-muted mb-4">
+									Optional - für schnellere Kontaktaufnahme
+								</small>
+								<label for="telefonnummer">Telefonnummer</label>
+							</div>
+
+							<div class="md-form mt-3 text-center">
+								<img th:if="*{signatur} == null" th:src="@{/img/rect.png}" class="img-fluid" id="signatur" alt="Responsive image">
+								<img th:if="*{signatur != null}"  th:src="@{'data:image/png;base64,'+${signaturPic}}" class="img-fluid" id="signatur" alt="Responsive image">
+								<small id="signatur" class="form-text text-muted mb-4">
+									Die eigene Signatur
+								</small>
+								<div class="text-center">
+								  <a href="" class="btn btn-default btn-rounded mb-4" data-toggle="modal" data-target="#modalLoginForm">Signatur ändern!</a>
+								</div>
+							</div>
+
+							<button class="btn btn-success" type="submit" id="speichern">Speichern</button>
+						</form>
+
+					</div>
+				</div>
+
+				<img id="showImg">
+			</div>
+		</main>
+
+
+		<div class="modal fade" id="modalLoginForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header text-center">
+						<h4 class="modal-title w-100 font-weight-bold">Signatur Hochladen!</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body mx-3">
+						<p id="sizeOfCropImg" style="display: none;"><span id="cropImgWidth"></span> x <span id="cropImgHeigth"></span></p>
+						<div id="containerOfSig" class="container-fluid" style="display: none;">
+							<img id="showSignature" src="#" class="img-fluid" />
+						</div>
+						<form id="signaturForm" enctype="multipart/form-data" th:action="@{/app/upload}" method="POST">
+							<div class="md-form mt-3 text-center">
+								<div class="file-field">
+									<div class="btn btn-primary btn-sm float-left">
+										<span>Datei auswählen</span>
+										<input type="file" name="file" id="file">
+									</div>
+									<div class="file-path-wrapper">
+										<input class="file-path validate" type="text" name="signaturName" id="signaturName" placeholder="Signatur hochladen">
+									</div>
+								</div>
+								<small id="labelSize" class="form-text text-muted mb-4">
+								Empfohlene Größe: 429 x 202
+								</small>
+							</div>
+
+							<a class="btn btn-success" id="hochladen">Hochladen</a>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<footer class="fixed-bottom" th:replace="fragmente/footer :: footer(~{::script})">
+			<!-- Cropper core JavaScript -->
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.2/croppie.js"></script>
+
+			<!-- Settings js -->
+			<script th:inline="javascript">
+				var resize = $('#showSignature').croppie({
+					enableExif: true,
+					enableOrientation: true,
+					viewport: { // Default { width: 100, height: 100, type: 'square' }
+						width: 429,
+						height: 202,
+						type: 'square' //square
+					},
+					boundary: {
+						width: 600,
+						height: 500
+					}
+				});
+
+				$('#file').on('change', function () {
+					var reader = new FileReader();
+					reader.onload = function (e) {
+						resize.croppie('bind',{
+							url: e.target.result
+						}).then(function(){
+							console.log('jQuery bind complete');
+						});
+					}
+					reader.readAsDataURL(this.files[0]);
+					$('#containerOfSig').css('display', 'block');
+				});
+
+				$('#hochladen').on('click', function (ev) {
+					resize.croppie('result', {
+						type: 'blob',
+						size: 'viewport'
+					}).then(function (img) {
+						img.filename = 'sigantur'
+						img.date = new Date();
+						var data = new FormData();
+						data.append('file', img);
+						$.ajax({
+							type: 'POST',
+							url: '/app/upload',
+							data: data,
+							processData: false,
+							contentType: false
+						}).done(function(data){
+							location.reload();
+						});
+					});
+				});
+			</script>
+		</footer>
+	</body>
+</html>

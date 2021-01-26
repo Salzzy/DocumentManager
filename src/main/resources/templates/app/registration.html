@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+    <head th:replace="fragmente/head :: head(~{::title}, ~{})">
+        <title>Registration - Rechnungsmanager</title>
+    </head>
+
+
+    <body>
+        <header th:replace="fragmente/menu :: menu"></header>
+
+        <main>
+            <div class="container row">
+                <div class="col-3"></div>
+                <div class="col-6">
+                    <h5 class="card-header info-color white-text text-center py-4">
+                        <strong>Registration</strong>
+                    </h5>
+
+                    <div class="card-body px-lg-5 pt-0">
+                        <form class="text-center" style="color: #757575;" th:action="@{/registration}" th:object="${userForm}" method="POST">
+                            <div class="md-form">
+                                <input type="text" id="username" th:field="*{username}" class="form-control">
+                                <label for="username">Username</label>
+                            </div>
+
+                            <div class="md-form">
+                                <input type="password" id="password" th:field="*{password}" class="form-control">
+                                <label for="password">Password</label>
+                            </div>
+
+                            <div class="md-form">
+                                <input type="password" id="passwordConfirm" th:field="*{passwordConfirm}" class="form-control">
+                                <label for="passwordConfirm">Password</label>
+                            </div>
+
+                            <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit">Login</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer th:replace="fragmente/footer :: footer(~{})"></footer>
+    </body>
+</html>
