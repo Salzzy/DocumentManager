@@ -5,5 +5,6 @@ application.properties
 node_modules/
 src/main/resources/static/js/**
 src/main/resources/static/css/**
+src/main/resources/static/font/**
 !src/main/resources/static/js/rechnungsmanager.js
 !src/main/resources/static/css/style.css
