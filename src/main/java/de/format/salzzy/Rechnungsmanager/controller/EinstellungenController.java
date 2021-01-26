@@ -22,10 +22,7 @@ import de.format.salzzy.Rechnungsmanager.model.UserInfo;
 import de.format.salzzy.Rechnungsmanager.service.UserService;
 
 @Controller
-@RequestMapping("/app")
 public class EinstellungenController {
-
-//	private static String INPUT_DIR = "C:\\Users\\salzmann\\Desktop\\Test-Umgebung\\FIBU\\Mitarbeiter\\";
 	
 	@Autowired
 	UserService userService;
@@ -42,20 +39,16 @@ public class EinstellungenController {
 	public String settings(Model theModel) {
 		
 		User user = getCurrentUser();
-		
 		UserInfo userinfo = user.getUserinfo();
 		
 		theModel.addAttribute("userinfo", userinfo);
-		
-		
-		
 		theModel.addAttribute("signaturPic", Base64.encodeBase64String(userinfo.getSignatur()));
 		
-		return "app/settings";
+		return "app/settings/index";
 	}
 	
 	
-	@PostMapping("/save")
+	@PostMapping("settings/save/userinfo")
 	public String save(@ModelAttribute("userinfo") UserInfo userinfo) {
 		
 		User user = getCurrentUser();
@@ -63,7 +56,7 @@ public class EinstellungenController {
 		// Muss getrennt von Signatur gespeichert werden
 		userService.saveUserInfo(user, userinfo);
 		
-		return "redirect:/app/settings";
+		return "redirect:/settings";
 	}
 	
 	
@@ -82,7 +75,7 @@ public class EinstellungenController {
 		
 		
 		
-		return "redirect:/app/settings";
+		return "redirect:/settings";
 	}
 	
 	
