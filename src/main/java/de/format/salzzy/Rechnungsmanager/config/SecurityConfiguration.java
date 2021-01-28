@@ -54,11 +54,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http
 			.authorizeRequests()
 			.antMatchers("/registration", "/css/**", "/js/**").permitAll()
-			.antMatchers("/app/**")
-			.hasAnyRole("USER")
+			.antMatchers("/dashboard", "/verteilen", "/verschieben").hasAnyRole("USER")
 			.anyRequest().authenticated()
 			.and()
-			.formLogin().permitAll()
+			.formLogin().successForwardUrl("/dashboard").permitAll()
 			.and()
 			.logout().permitAll();
 		
