@@ -20,9 +20,7 @@ public class Setting {
     private String documentPath;
 
     public String getDocumentUserPath(User user){
-        return this.documentPath + user.getUsername();
+        return this.documentPath + "Mitarbeiter/" + user.getUsername();
     }
-
-    
 
 }

@@ -28,14 +28,26 @@ public class DocumentServiceImpl implements DocumentService {
 		this.javaMailSender = javaMailSender;
 		this.settingService = settingService;
 	}
-	
+
+	@Override
+	public String getDocumentPath() {
+		return settingService.getSetting().getDocumentPath();
+	}
+
+	@Override
+	public String getPublicInvoiceDocumentPath() {
+		return settingService.getSetting().getDocumentPath() + "Rechnungen";
+	}
+
+	@Override
+	public String getUserDocumentPath(User user) {
+		return settingService.getSetting().getDocumentUserPath(user);
+	}
+
 	@Override
 	public List<String> getFileNames(File folder) {
-		
-		// Get all pdfs im Verzeichniss des Users
 		File[] files = folder.listFiles();
 		List<String> fileNames = new ArrayList<String>();
-		
 		// Speichere Pdf Namen in Liste
 		if(files != null) {
 			for(File f : files) {
@@ -71,4 +83,6 @@ public class DocumentServiceImpl implements DocumentService {
 
 		return uploadPath+file.getOriginalFilename();
 	}
+
+
 }

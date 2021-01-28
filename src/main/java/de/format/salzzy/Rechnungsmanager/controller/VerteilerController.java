@@ -27,22 +27,18 @@ public class VerteilerController {
 
 	private UserService userService;
 	private DocumentService documentService;
-	private SettingService settingService;
 
 	@Autowired
-	public VerteilerController(UserService userService, DocumentService documentService, SettingService settingService)
+	public VerteilerController(UserService userService, DocumentService documentService)
 	{
 		this.userService = userService;
 		this.documentService = documentService;
-		this.settingService = settingService;
 	}
 	
 	@GetMapping("/verteilen")
 	public String verteilen(Model theModel) {
-		
-		File folder = new File(settingService.getSetting().getDocumentPath());
-		
-		// Get all pdfs im Verzeichniss des Users
+		File folder = new File(documentService.getPublicInvoiceDocumentPath());
+
 		List<String> fileNames = documentService.getFileNames(folder);
 		List<String> autoComplete = new ArrayList<String>();
 		
@@ -59,18 +55,17 @@ public class VerteilerController {
 	
 	@PostMapping("/verschieben")
 	public String verteilen(@RequestParam("userName") String username, @RequestParam("pdfList[]") String[] pdfs) {
+
+		User user = userService.findByUsername(username);
+		String userFolderPath = documentService.getUserDocumentPath(user);
 		
-		System.out.println(username + " | " + pdfs[0]);
-		
-		String userFolderPath = INPUT_DIR.replace("{placeholder}", username);
-		
-		File rechnungsFolder = new File(PDF_DIR);
+		File rechnungsFolder = new File(documentService.getPublicInvoiceDocumentPath());
 		File[] documents = rechnungsFolder.listFiles();
 		Arrays.asList(documents).stream().forEach(file ->{
 			String fileName = file.getName();
 			for(String pdf : pdfs) {
 				if(pdf.equals(fileName)) {
-					File source = new File(PDF_DIR + "\\" + fileName);
+					File source = new File(documentService.getPublicInvoiceDocumentPath() + "\\" + fileName);
 					File dest = new File(userFolderPath + "\\" + pdf);
 					try {
 						Files.move(source.toPath(), dest.toPath());
@@ -81,8 +76,6 @@ public class VerteilerController {
 			}
 			
 		});
-		
-		User user = userService.findByUsername(username);
 
 		try {
 			documentService.sendNotification(user, pdfs.length);
