@@ -7,54 +7,53 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.format.salzzy.Rechnungsmanager.service.DocumentService;
+import de.format.salzzy.Rechnungsmanager.service.SettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import de.format.salzzy.Rechnungsmanager.model.User;
 import de.format.salzzy.Rechnungsmanager.service.UserService;
-import de.format.salzzy.Rechnungsmanager.service.VerteilerService;
 
 @Controller
 public class VerteilerController {
 	
 	private String PDF_DIR = "C:\\Users\\salzmann\\Desktop\\Test-Umgebung\\FIBU\\Rechnungen";
 	private String INPUT_DIR = "C:\\Users\\salzmann\\Desktop\\Test-Umgebung\\FIBU\\Mitarbeiter\\{placeholder}";
-	
-	@Autowired
+
 	private UserService userService;
-	
+	private DocumentService documentService;
+	private SettingService settingService;
+
 	@Autowired
-	private VerteilerService verteilerService;
+	public VerteilerController(UserService userService, DocumentService documentService, SettingService settingService)
+	{
+		this.userService = userService;
+		this.documentService = documentService;
+		this.settingService = settingService;
+	}
 	
 	@GetMapping("/verteilen")
 	public String verteilen(Model theModel) {
 		
-		File folder = new File(PDF_DIR);
+		File folder = new File(settingService.getSetting().getDocumentPath());
 		
 		// Get all pdfs im Verzeichniss des Users
-		List<String> fileNames = verteilerService.getFileNames(folder);
-		
-		// Übergebe Liste mit Namen an Frontend
-		theModel.addAttribute("pdfs", fileNames);
-		
-		// Anzahl an Rechnungen im Ordner
-		theModel.addAttribute("anzahl", fileNames.size());
-		
-		
+		List<String> fileNames = documentService.getFileNames(folder);
 		List<String> autoComplete = new ArrayList<String>();
 		
 		List<User> users = userService.findAll();
 		users.stream().map(n -> n.getUsername()).forEach(autoComplete::add);
 		
 		theModel.addAttribute("users", autoComplete);
+		theModel.addAttribute("pdfs", fileNames);
+		theModel.addAttribute("anzahl", fileNames.size());
 		
-		return "app/verteilen";
-		
+		return "app/verteilen/index";
 	}
 
 	
@@ -86,7 +85,7 @@ public class VerteilerController {
 		User user = userService.findByUsername(username);
 
 		try {
-			verteilerService.sendNotification(user, pdfs.length);
+			documentService.sendNotification(user, pdfs.length);
 		} catch(NullPointerException e) {
 			// return error no Email exists
 		}
