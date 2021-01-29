@@ -32,7 +32,7 @@ public interface DocumentService {
 	String getUserDocumentPath(User user);
 
 	/**
-	 * Gibt eine Liste mit den Namen aller Dateien zurück.
+	 * Gibt eine Liste mit den Namen aller Dateien aus dem Ordner zurück.
 	 * @param folder Ordner in dem die Dateien gesucht werden
 	 * @return List<String>
 	 */
@@ -44,10 +44,15 @@ public interface DocumentService {
 	 * Speichert die hochgeladene Datei in Filesystem
 	 * und in der Datenbank ab.
 	 * @param file uploaded Document
-	 * @return String
+	 * @return java.lang.String
 	 * @throws IOException
 	 */
 	String saveFile(MultipartFile file) throws IOException;
+
+
+	// delete document
+
+	// utils folder of user => username/utils
 
 
 }

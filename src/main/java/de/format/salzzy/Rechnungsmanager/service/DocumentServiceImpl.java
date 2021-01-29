@@ -22,11 +22,14 @@ public class DocumentServiceImpl implements DocumentService {
 	
 	private JavaMailSender javaMailSender;
 	private SettingService settingService;
+
+	private FileUploadUtils fileUploadUtils;
 	
 	@Autowired
-	public DocumentServiceImpl(JavaMailSender javaMailSender, SettingService settingService) {
+	public DocumentServiceImpl(JavaMailSender javaMailSender, SettingService settingService, FileUploadUtils fileUploadUtils) {
 		this.javaMailSender = javaMailSender;
 		this.settingService = settingService;
+		this.fileUploadUtils = fileUploadUtils;
 	}
 
 	@Override
@@ -36,7 +39,7 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Override
 	public String getPublicInvoiceDocumentPath() {
-		return settingService.getSetting().getDocumentPath() + "Rechnungen";
+		return settingService.getSetting().getDocumentPath() + "Rechnungen/";
 	}
 
 	@Override
@@ -78,8 +81,10 @@ public class DocumentServiceImpl implements DocumentService {
 	@Override
 	public String saveFile(MultipartFile file) throws IOException {
 		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-		String uploadPath = settingService.getSetting().getDocumentPath();
-		FileUploadUtils.saveFile(uploadPath, fileName, file);
+		String uploadPath = settingService.getSetting().getDocumentInvoicePath();
+		System.out.println(uploadPath);
+		System.out.println(fileName);
+		fileUploadUtils.saveFile(uploadPath, fileName, file);
 
 		return uploadPath+file.getOriginalFilename();
 	}
