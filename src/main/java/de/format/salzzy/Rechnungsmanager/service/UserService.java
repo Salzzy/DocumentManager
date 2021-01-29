@@ -8,6 +8,8 @@ import de.format.salzzy.Rechnungsmanager.model.UserInfo;
 public interface UserService {
 	
 	void save(User user);
+
+	User currentLoggedInUser();
 	
 	void saveUserInfo(User user, UserInfo userinfo);
 	
