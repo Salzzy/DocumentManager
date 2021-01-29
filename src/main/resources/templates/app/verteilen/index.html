@@ -22,9 +22,9 @@
 							</h2>
 
 							<div class="dropdown-menu dropdown-primary">
-								<a class="dropdown-item" data-toggle="modal" data-target="#modalRechnungHochladen">PDF Hochladen</a>
-								<a class="dropdown-item" data-toggle="modal" data-target="#modalDeleteRechnung">PDF Löschen</a>
-								<a class="dropdown-item" href="#" >PDF Download</a>
+								<a class="dropdown-item" data-toggle="modal" data-target="#modalInvoiceUpload">PDF Hochladen</a>
+								<a class="dropdown-item" data-toggle="modal" data-target="#modalInvoiceDelete">PDF Löschen</a>
+								<a class="dropdown-item" >PDF Download</a>
 							</div>
 						</div>
 					</div>
@@ -40,7 +40,7 @@
 					<div class="col-6 text-center">
 						<div class="btn-group mt-2 center" role="group" aria-label="Btn Action Group">
 							<a onclick="changeImagePre()" type="button" class="btn mdb-color darken-3 btn-rounded">Vorherige</a>
-							<a class="btn mdb-color darken-3 btn-rounded" data-toggle="modal" data-target="#modalUebermitteln" >Weiterleiten</a>
+							<a class="btn mdb-color darken-3 btn-rounded" data-toggle="modal" data-target="#modalInvoiceSubmit" >Weiterleiten</a>
 							<a onclick="changeImageNext()" type="button" class="btn mdb-color darken-3 btn-rounded">Nächste</a>
 						</div>
 					</div>
@@ -85,94 +85,31 @@
 			</div>
 		</main>
 
-		<div th:replace="fragmente/verteilerModals :: modalUebermitteln"></div>
+		<div th:replace="app/verteilen/modals :: modalInvoiceSubmit"></div>
+		<div th:replace="app/verteilen/modals :: modalInvoiceUpload"></div>
+		<div th:replace="app/verteilen/modals :: modalInvoiceDelete"></div>
 
 		<footer th:replace="fragmente/footer :: footer(~{::script})">
-			<!-- Rechnungsmanager JavaScript -->
-			<script type="text/javascript" th:src="@{/js/rechnungsmanager.js}"></script>
 
-			<!-- Homepage PDF Navigation -->
+			<!-- Verteilen PDF Navigation -->
 			<script th:inline="javascript">
-				var list = [[${pdfs}]];
-				var users = [[${users}]];
-				var number = 0;
+				let list = [[${pdfs}]];
+				let users = [[${users}]];
+				let number = 0;
 
 				$('#form-autocomplete').mdbAutocomplete({
 					data: users
 				});
 
-				highlight(number);
-
-				function changeImageNext(){
-					var link = '';
-					var src = 'http://localhost:8080/pdf?name=';
-					dehighlight(number);
-
-					if(number < list.length-1) {
-						link = src + list[number + 1] + "&verteiler=true";
-						number++;
-					} else {
-						number = 0;
-						link = src + list[number] + "&verteiler=true";
-					}
-					highlight(number);
-					document.getElementById("showPdf").src = link;
-				}
-
-				function changeImagePre(){
-					var link = '';
-					var src = 'http://localhost:8080/pdf?name=';
-					dehighlight(number);
-
-					if((list.indexOf(list[number])-1) >= 0) {
-						link = src + list[number - 1] + "&verteiler=true";
-						number--;
-					} else {
-						number = list.length-1;
-						link = src + list[number] + "&verteiler=true";
-					}
-					highlight(number);
-					document.getElementById("showPdf").src = link;
-				}
-
-				function getAllCheckboxes(){
-					let a = [];
-					$('.rCheckboxes:checkbox:checked').each(function(){
-						a.push(this.id.substring(0, this.id.indexOf("_"))); // wieder umwandeln in normalen Dateinamen
-					});
-					console.log(a);
-					return a;
-				}
-
-
-				function highlight(num) {
-					var id = '#' + escapeDot(list[num]);
-					$(id).css("background-color", "#f0f4c3");
-				};
-
-				function dehighlight(num) {
-					var id = '#' + escapeDot(list[num]);
-					$(id).css("background-color", "white");
-				};
-
-				function escapeDot(idName){
-					var str = idName;
-					var n = str.replace(".", "\\.");
-					return n;
-				}
-
 				$('#submitWeiterleiten').on('click', function (ev) {
+					let pdfs = getAllCheckboxes();
+					let username = $('#form-autocomplete').val();
 
-					var pdfs = getAllCheckboxes();
-					var username = $('#form-autocomplete').val();
-
-					var data = new FormData();
+					let data = new FormData();
 					data.append('userName', username);
-					for (var i = 0; i < pdfs.length; i++) {
+					for (let i = 0; i < pdfs.length; i++) {
 						data.append('pdfList[]', pdfs[i]);
 					}
-
-					console.log(username);
 
 					$.ajax({
 						type: 'POST',
@@ -181,11 +118,13 @@
 						processData: false,
 						contentType: false
 					}).done(function(data){
-						console.log("Reload");
 						location.reload();
 					});
 				});
 			</script>
+
+			<script type="text/javascript"  th:src="@{/js/rechnungsmanager/verteilen.js}"></script>
+
 		</footer>
 	</body>
 </html>

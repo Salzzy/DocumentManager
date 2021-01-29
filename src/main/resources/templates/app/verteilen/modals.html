@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+
+<!-- Stempel Modal -->
+<div class="modal fade" id="modalRechnungUebermitteln" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" th:fragment="modalInvoiceSubmit">
+	<div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	    	<div class="modal-header text-center">
+		        <h4 class="modal-title w-100 font-weight-bold">Rechnungen übermitteln an:</h4>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		        	<span aria-hidden="true">&times;</span>
+		        </button>
+	    	</div>
+	      	<form id="empfaengerForm" class="border border-light p-2" th:action="@{/verschieben}" method="post">
+				<div class="md-form">
+					<input type="text" name="userName" id="form-autocomplete" class="form-control mdb-autocomplete" autocomplete="off">
+					<button class="mdb-autocomplete-clear">
+					    <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="https://www.w3.org/2000/svg">
+					    	<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+					    	<path d="M0 0h24v24H0z" fill="none" />
+					    </svg>
+					</button>
+					<label for="form-autocomplete" class="active">Wohin sollten die Rechnungen geschickt werden?</label>
+				</div>
+				<button type="button" id="submitWeiterleiten" class="btn btn-secondary btn-rounded mt-4">Übermitteln!</button>
+			</form>
+	    </div>
+	</div>
+</div>
+
+<!-- Eine Rechnung in den Verteiler hochladen Modal -->
+<div class="modal fade" id="modalInvoiceUpload" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" th:fragment="modalInvoiceUpload">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header text-center">
+				<h4 class="modal-title w-100 font-weight-bold">Rechnungen hochladen</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form id="uploadInvoiceForm" class="border border-light p-2" th:action="@{/verteilen/save}" method="post" enctype="multipart/form-data">
+				<div class="file-field mt-3">
+					<div class="btn btn-primary btn-sm float-left">
+						<span>Datei auswählen</span>
+						<input type="file" name="file">
+					</div>
+					<div class="file-path-wrapper">
+						<input class="file-path validate" type="text" name="fileName" placeholder="Datei hochladen">
+					</div>
+				</div>
+				<button class="btn mt-4 btn-success" type="submit">Bild hochladen</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+
+
+<!-- Modal Rechnung löschen -->
+<div th:fragment="modalInvoiceDelete" class="modal fade" id="modalInvoiceDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabelProdukt"
+	 aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabelProdukt">Rechnung löschen</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				Bist du sicher, dass du die Artikelgruppe "<span id="deleteArtikelgruppeName"></span>" löschen möchtest?
+			</div>
+			<div class="modal-footer">
+				<a type="button" class="btn btn-secondary" data-dismiss="modal">Nein, abbruch!</a>
+				<a id="deleteArtikelgruppeModalButton" type="button" class="btn btn-danger">Ja, weg damit!</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+</html>

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.format.salzzy.Rechnungsmanager.Utils.FileUploadUtils;
 import de.format.salzzy.Rechnungsmanager.service.DocumentService;
 import de.format.salzzy.Rechnungsmanager.service.SettingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import de.format.salzzy.Rechnungsmanager.model.User;
 import de.format.salzzy.Rechnungsmanager.service.UserService;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class VerteilerController {
@@ -38,6 +40,7 @@ public class VerteilerController {
 	@GetMapping("/verteilen")
 	public String verteilen(Model theModel) {
 		File folder = new File(documentService.getPublicInvoiceDocumentPath());
+		System.out.println(folder.getAbsolutePath());
 
 		List<String> fileNames = documentService.getFileNames(folder);
 		List<String> autoComplete = new ArrayList<String>();
@@ -61,7 +64,7 @@ public class VerteilerController {
 		
 		File rechnungsFolder = new File(documentService.getPublicInvoiceDocumentPath());
 		File[] documents = rechnungsFolder.listFiles();
-		Arrays.asList(documents).stream().forEach(file ->{
+		Arrays.asList(documents).stream().forEach(file -> {
 			String fileName = file.getName();
 			for(String pdf : pdfs) {
 				if(pdf.equals(fileName)) {
@@ -74,13 +77,23 @@ public class VerteilerController {
 					}
 				}
 			}
-			
 		});
 
 		try {
 			documentService.sendNotification(user, pdfs.length);
 		} catch(NullPointerException e) {
 			// return error no Email exists
+		}
+		return "redirect:/verteilen";
+	}
+
+	@PostMapping("verteilen/save")
+	public String saveFile(@RequestParam("file") MultipartFile mpf)
+	{
+		try {
+			String docPath = documentService.saveFile(mpf);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return "redirect:/verteilen";
 	}
