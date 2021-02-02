@@ -1,5 +1,7 @@
 package de.format.salzzy.Rechnungsmanager.model;
 
+import de.format.salzzy.Rechnungsmanager.model.auth.User;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

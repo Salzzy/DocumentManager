@@ -1,18 +1,16 @@
 package de.format.salzzy.Rechnungsmanager.service;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import de.format.salzzy.Rechnungsmanager.model.Role;
-import de.format.salzzy.Rechnungsmanager.model.User;
+import de.format.salzzy.Rechnungsmanager.model.auth.Role;
+import de.format.salzzy.Rechnungsmanager.model.auth.User;
 import de.format.salzzy.Rechnungsmanager.model.UserInfo;
 import de.format.salzzy.Rechnungsmanager.repository.RoleRepository;
 import de.format.salzzy.Rechnungsmanager.repository.UserRepository;

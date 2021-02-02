@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.format.salzzy.Rechnungsmanager.Utils.FileUploadUtils;
 import de.format.salzzy.Rechnungsmanager.service.DocumentService;
-import de.format.salzzy.Rechnungsmanager.service.SettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,7 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import de.format.salzzy.Rechnungsmanager.model.User;
+import de.format.salzzy.Rechnungsmanager.model.auth.User;
 import de.format.salzzy.Rechnungsmanager.service.UserService;
 import org.springframework.web.multipart.MultipartFile;
 

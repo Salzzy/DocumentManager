@@ -1,17 +1,10 @@
 package de.format.salzzy.Rechnungsmanager.controller;
 
-import com.google.common.collect.Sets;
-import de.format.salzzy.Rechnungsmanager.model.Role;
-import de.format.salzzy.Rechnungsmanager.model.User;
-import de.format.salzzy.Rechnungsmanager.model.auth.Permission;
 import de.format.salzzy.Rechnungsmanager.repository.RoleRepository;
-import de.format.salzzy.Rechnungsmanager.repository.UserRepository;
 import de.format.salzzy.Rechnungsmanager.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import java.util.Optional;
 
 @Controller
 public class AuthController {

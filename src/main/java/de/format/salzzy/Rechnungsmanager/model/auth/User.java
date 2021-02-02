@@ -1,10 +1,13 @@
-package de.format.salzzy.Rechnungsmanager.model;
+package de.format.salzzy.Rechnungsmanager.model.auth;
 
 import java.util.Collection;
 import java.util.Set;
 
 import javax.persistence.*;
 
+import de.format.salzzy.Rechnungsmanager.model.Document;
+import de.format.salzzy.Rechnungsmanager.model.UserInfo;
+import de.format.salzzy.Rechnungsmanager.model.auth.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

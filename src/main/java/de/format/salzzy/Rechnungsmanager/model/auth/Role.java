@@ -1,6 +1,5 @@
-package de.format.salzzy.Rechnungsmanager.model;
+package de.format.salzzy.Rechnungsmanager.model.auth;
 
-import de.format.salzzy.Rechnungsmanager.model.auth.Permission;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

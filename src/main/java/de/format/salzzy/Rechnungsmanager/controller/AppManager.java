@@ -1,15 +1,13 @@
 package de.format.salzzy.Rechnungsmanager.controller;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import de.format.salzzy.Rechnungsmanager.model.Document;
 import de.format.salzzy.Rechnungsmanager.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -17,20 +15,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.itextpdf.text.DocumentException;
 
 import de.format.salzzy.Rechnungsmanager.Utils.PdfStempeln;
-import de.format.salzzy.Rechnungsmanager.model.User;
+import de.format.salzzy.Rechnungsmanager.model.auth.User;
 import de.format.salzzy.Rechnungsmanager.service.UserService;
 
 @Controller
@@ -42,8 +37,8 @@ public class AppManager {
 	 */
 	private static String FERTIG_DIR = "C:\\Users\\salzmann\\Desktop\\Test-Umgebung\\FIBU\\Rechnungen_Freigegeben\\";
 
-	private UserService userService;
-	private DocumentService documentService;
+	private final UserService userService;
+	private final DocumentService documentService;
 
 	@Autowired
 	public AppManager(UserService userService, DocumentService documentService)
@@ -52,39 +47,32 @@ public class AppManager {
 		this.userService = userService;
 	}
 
-	@GetMapping("/dashboard")
+	@GetMapping("/rechnungen")
 	@PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_FIBU', 'ROLE_ADMIN')")
 	public String home(Model theModel, @RequestParam("name") Optional<String> name)  {
 		
 		User user = userService.currentLoggedInUser();
-		String userFolder = documentService.getUserDocumentPath(user);
-		
-		// Check ob das Pdf Verzeichniss existiert
-		File PDF_DIR = new File(userFolder);
-		
-		// Erstelle Pdf Verzeichniss
-		if(!PDF_DIR.exists()) {
-			PDF_DIR.mkdir();
+		String userFolderPath = documentService.getUserDocumentPath(user);
+		File userFolder = new File(userFolderPath);
+
+		if(!userFolder.exists()) userFolder.mkdir();
+
+		File[] files = userFolder.listFiles();
+
+		List<String> fileNames = null;
+		Integer amountOfFiles = null;
+		if (files != null) {
+			fileNames = Arrays.stream(files)
+					.map(File::getName)
+					.filter(fileName -> fileName.endsWith(".pdf"))
+					.collect(Collectors.toList());
+			amountOfFiles = fileNames.size();
 		}
-		
-		// Get all pdfs im Verzeichniss des Users
-		File[] files = PDF_DIR.listFiles();
-		List<String> fileNames = new ArrayList<String>();
-		
-		// Speichere Pdf Namen in Liste
-		if(files != null) {
-			for(File f : files) {
-				
-				if(f.getName().endsWith(".pdf")) {
-					fileNames.add(f.getName());
-				}
-			}
-		} 
 
 		theModel.addAttribute("pdfs", fileNames);
-		theModel.addAttribute("anzahl", fileNames.size());
+		theModel.addAttribute("anzahl", amountOfFiles);
 
-		return "app/dashboard/index";
+		return "app/rechnungen/index";
 	}
 	
 	
@@ -102,7 +90,7 @@ public class AppManager {
 			e.printStackTrace();
 		}
 		
-		return "redirect:/dashboard";
+		return "redirect:/rechnungen";
 	}
 	
 	@GetMapping("/delete")
@@ -111,7 +99,7 @@ public class AppManager {
 		User user = userService.currentLoggedInUser();
 		// delete document by ID
 		
-		return "redirect:/dashboard";
+		return "redirect:/rechnungen";
 	}
 	
 	
@@ -140,7 +128,7 @@ public class AppManager {
 			e.printStackTrace();
 		}
 		
-		return "redirect:/dashboard";
+		return "redirect:/rechnungen";
 	}
 	
 	
@@ -198,5 +186,4 @@ public class AppManager {
 		return new ResponseEntity<byte[]>(encodedBase64, headers, HttpStatus.OK);
 	}
 
-	
 }

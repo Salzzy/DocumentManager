@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import de.format.salzzy.Rechnungsmanager.model.User;
+import de.format.salzzy.Rechnungsmanager.model.auth.User;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface DocumentService {

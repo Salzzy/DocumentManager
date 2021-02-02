@@ -37,17 +37,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
+			.headers().frameOptions().sameOrigin()
+			.and()
 			.authorizeRequests()
-			.antMatchers("/registration", "/css/**", "/js/**").permitAll()
-			//.antMatchers("/dashboard", "/verteilen", "/verschieben").hasAnyRole("USER")
+			.antMatchers("/registration", "/css/**", "/js/**", "/img/**").permitAll()
 			.anyRequest()
 			.authenticated()
 			.and()
 			.formLogin()
 				.loginPage("/login").permitAll()
-				.defaultSuccessUrl("/dashboard", true)
+				.defaultSuccessUrl("/rechnungen", true)
 				.passwordParameter("password")
 				.usernameParameter("username")
+			.and()
+			.rememberMe()
 			.and()
 			.logout()
 				.logoutUrl("/logout")
@@ -55,12 +58,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.invalidateHttpSession(true)
 				.deleteCookies("JSESSIONID")
 				.logoutSuccessUrl("/login");
-
-
-		
-		http.headers().frameOptions().sameOrigin();
-		
-		http.csrf().disable();
 	}
 
 	@Override
@@ -76,5 +73,4 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		return provider;
 	}
 
-	
 }

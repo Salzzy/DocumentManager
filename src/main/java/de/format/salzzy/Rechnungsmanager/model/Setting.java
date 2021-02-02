@@ -1,5 +1,6 @@
 package de.format.salzzy.Rechnungsmanager.model;
 
+import de.format.salzzy.Rechnungsmanager.model.auth.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

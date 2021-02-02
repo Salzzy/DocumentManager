@@ -2,7 +2,7 @@ package de.format.salzzy.Rechnungsmanager.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import de.format.salzzy.Rechnungsmanager.model.User;
+import de.format.salzzy.Rechnungsmanager.model.auth.User;
 
 import java.util.Optional;
 
