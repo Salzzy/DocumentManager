@@ -29,7 +29,7 @@ import de.format.salzzy.Rechnungsmanager.model.auth.User;
 import de.format.salzzy.Rechnungsmanager.service.UserService;
 
 @Controller
-public class AppManager {
+public class InvoiceController {
 	
 	/*
 	 * Test Ordner in dem die PDF liegt
@@ -41,7 +41,7 @@ public class AppManager {
 	private final DocumentService documentService;
 
 	@Autowired
-	public AppManager(UserService userService, DocumentService documentService)
+	public InvoiceController(UserService userService, DocumentService documentService)
 	{
 		this.documentService = documentService;
 		this.userService = userService;
