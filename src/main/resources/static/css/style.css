@@ -81,3 +81,11 @@
   -ms-transform: rotate(45deg);
   transform: rotate(45deg);
 }
+
+.login-page {
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  background: linear-gradient(to left bottom, rgba(62, 69, 81, 0.7), rgba(0, 0, 0, 0.7)), url("/img/login-background.jpg") no-repeat center center fixed;
+}
