@@ -1,16 +1,19 @@
 package de.format.salzzy.Rechnungsmanager.model;
 
-import java.util.Set;
+import de.format.salzzy.Rechnungsmanager.model.auth.Permission;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "role")
+@Getter
+@Setter
 public class Role {
 
 	@Id
@@ -19,33 +22,25 @@ public class Role {
 
     private String name;
 
-    @ManyToMany(mappedBy = "roles")
-    private Set<User> users;
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    }, fetch = FetchType.EAGER)
+    @JoinTable(name = "role_permission",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
+    private Set<Permission> permissions;
 
-    public Long getId() {
-        return id;
-    }
+    @OneToOne(mappedBy = "role")
+    private User user;
 
-    public void setId(Long id) {
-        this.id = id;
+    public Set<SimpleGrantedAuthority> getGrantedAuthority() {
+        Set<SimpleGrantedAuthority> permissions = getPermissions().stream()
+                .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
+                .collect(Collectors.toSet());
+        permissions.add(new SimpleGrantedAuthority("ROLE_" + this.name));
+        return permissions;
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<User> users) {
-        this.users = users;
-    }
-	
-	
 	
 }

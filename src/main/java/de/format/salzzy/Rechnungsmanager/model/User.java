@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.persistence.*;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +15,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Table(name="users")
 @Getter
 @Setter
-public class User{
+@NoArgsConstructor
+public class User implements UserDetails{
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +28,14 @@ public class User{
 	
 	@Transient
     private String passwordConfirm;
+
+	private boolean isAccountNonExpired;
+
+	private boolean isAccountNonLocked;
+
+	private boolean isCredentialsNonExpired;
+
+	private boolean isEnabled;
 	
 	@OneToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name="infoId", referencedColumnName="user_id", insertable=true, updatable=true)
@@ -33,10 +43,23 @@ public class User{
 
 	@OneToMany(mappedBy = "owner")
 	private Set<Document> document;
-	
-	@ManyToMany
-	private Set<Role> roles;
 
-	
+	@OneToOne(cascade = CascadeType.PERSIST)
+	@JoinColumn(name = "role_id", referencedColumnName = "id")
+	private Role role;
 
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return getRole().getGrantedAuthority();
+	}
+
+	public User(String username, String password, boolean isAccountNonExpired, boolean isAccountNonLocked, boolean isCredentialsNonExpired, boolean isEnabled, Role role) {
+		this.username = username;
+		this.password = password;
+		this.isAccountNonExpired = isAccountNonExpired;
+		this.isAccountNonLocked = isAccountNonLocked;
+		this.isCredentialsNonExpired = isCredentialsNonExpired;
+		this.isEnabled = isEnabled;
+		this.role = role;
+	}
 }

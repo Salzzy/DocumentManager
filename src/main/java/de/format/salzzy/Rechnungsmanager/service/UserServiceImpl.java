@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import de.format.salzzy.Rechnungsmanager.model.Role;
@@ -21,28 +22,23 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder bCryptPasswordEncoder)
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder)
 	{
 		this.userRepository = userRepository;
 		this.roleRepository = roleRepository;
-		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 
     @Override
     public void save(User user) {
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        // USER Rolle in das HashSet und den User speichern
-        HashSet<Role> roles = new HashSet<Role>();
-        Optional<Role> role = roleRepository.findById(1l);
-		role.ifPresent(roles::add);
-
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Optional<Role> role = roleRepository.findById(1L);
+		role.ifPresent(user::setRole);
         user.setUserinfo(new UserInfo());
-        user.setRoles(roles);
         userRepository.save(user);
     }
 
@@ -58,14 +54,14 @@ public class UserServiceImpl implements UserService {
 
 	@Override
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsername(username).get();
     }
 
 
 	@Override
 	public void saveUserInfo(User user, UserInfo userinfo) {
 
-		User userAktuell = userRepository.findByUsername(user.getUsername());
+		User userAktuell = userRepository.findByUsername(user.getUsername()).get();
 		UserInfo aktuell = userAktuell.getUserinfo();
 
 		// Prüfe userDetails ab

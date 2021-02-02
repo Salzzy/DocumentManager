@@ -1,52 +1,37 @@
 package de.format.salzzy.Rechnungsmanager.config;
 
+import de.format.salzzy.Rechnungsmanager.auth.AuthenticationUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+    private final AuthenticationUserService authenticationUserService;
+    private final PasswordEncoder passwordEncoder;
+
 	@Autowired
-    private UserDetailsService userDetailsService;
-	
+	public SecurityConfiguration(AuthenticationUserService authenticationUserService, PasswordEncoder passwordEncoder) {
+		this.authenticationUserService = authenticationUserService;
+		this.passwordEncoder = passwordEncoder;
+	}
+
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 		web.ignoring().antMatchers("/resources/**");
 	}
-	
-	@Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-	
-//	@Override
-//	protected void configure(AuthenticationManagerBuilder auth) throws Exception{
-//		auth.inMemoryAuthentication()
-//		.withUser("user")
-//			.password("{noop}password")
-//			.roles("USER")
-//			.and()
-//		.withUser("admin")
-//			.password("{noop}admin")
-//			.roles("USER", "ADMIN");
-//	}
-	
-	
-	@Bean
-    public AuthenticationManager customAuthenticationManager() throws Exception {
-        return authenticationManager();
-    }
 
 	
 	@Override
@@ -54,22 +39,42 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http
 			.authorizeRequests()
 			.antMatchers("/registration", "/css/**", "/js/**").permitAll()
-			.antMatchers("/dashboard", "/verteilen", "/verschieben").hasAnyRole("USER")
-			.anyRequest().authenticated()
+			//.antMatchers("/dashboard", "/verteilen", "/verschieben").hasAnyRole("USER")
+			.anyRequest()
+			.authenticated()
 			.and()
-			.formLogin().successForwardUrl("/dashboard").permitAll()
+			.formLogin()
+				.loginPage("/login").permitAll()
+				.defaultSuccessUrl("/dashboard", true)
+				.passwordParameter("password")
+				.usernameParameter("username")
 			.and()
-			.logout().permitAll();
+			.logout()
+				.logoutUrl("/logout")
+				.clearAuthentication(true)
+				.invalidateHttpSession(true)
+				.deleteCookies("JSESSIONID")
+				.logoutSuccessUrl("/login");
+
+
 		
 		http.headers().frameOptions().sameOrigin();
 		
 		http.csrf().disable();
 	}
-	
-	
-	@Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
-    }
+
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.authenticationProvider(daoAuthenticationProvider());
+	}
+
+	@Bean
+	public DaoAuthenticationProvider daoAuthenticationProvider() {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setPasswordEncoder(passwordEncoder);
+		provider.setUserDetailsService(authenticationUserService);
+		return provider;
+	}
+
 	
 }
