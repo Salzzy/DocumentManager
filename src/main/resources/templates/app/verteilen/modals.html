@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="de">
 
 <!-- Stempel Modal -->
-<div class="modal fade" id="modalRechnungUebermitteln" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" th:fragment="modalInvoiceSubmit">
+<div class="modal fade" id="modalInvoiceSubmit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" th:fragment="modalInvoiceSubmit">
 	<div class="modal-dialog" role="document">
 	    <div class="modal-content">
 	    	<div class="modal-header text-center">
@@ -12,6 +12,9 @@
 		        </button>
 	    	</div>
 	      	<form id="empfaengerForm" class="border border-light p-2" th:action="@{/verschieben}" method="post">
+				<div id="error-alert" class="alert alert-danger invincible" role="alert" style="display: none;">
+
+				</div>
 				<div class="md-form">
 					<input type="text" name="userName" id="form-autocomplete" class="form-control mdb-autocomplete" autocomplete="off">
 					<button class="mdb-autocomplete-clear">

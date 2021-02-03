@@ -104,19 +104,31 @@
 				$('#submitWeiterleiten').on('click', function (ev) {
 					let pdfs = getAllCheckboxes();
 					let username = $('#form-autocomplete').val();
-
 					let data = new FormData();
+
 					data.append('userName', username);
 					for (let i = 0; i < pdfs.length; i++) {
 						data.append('pdfList[]', pdfs[i]);
 					}
+
+					let token = $('#_csrf').attr('content');
+					let header = $('#_csrf_header').attr('content');
 
 					$.ajax({
 						type: 'POST',
 						url: '/verschieben',
 						data: data,
 						processData: false,
-						contentType: false
+						contentType: false,
+						statusCode: {
+							403: function (response) {
+								$('#error-alert').html("Mindestens 1 PDF muss ausgewählt sein.<br> Ausgewählt ist sie wenn ein Haken vor dem namen angezeigt wird.");
+								$('#error-alert').css('display', 'block');
+							}
+						},
+						beforeSend: function(xhr) {
+							xhr.setRequestHeader(header, token);
+						},
 					}).done(function(data){
 						location.reload();
 					});
