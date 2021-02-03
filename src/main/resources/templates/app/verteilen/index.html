@@ -13,7 +13,7 @@
 					<div class="col-2"></div>
 					<div class="col-7 text-center">
 						<h1 class="h1">Folgende Rechnungen sind zu verteilen</h1>
-						<h4 class="h4 text-muted">Aktuelle Rechnungen: <span th:text="${anzahl}"></span></h4>
+						<h4 class="h4 text-muted">Aktuelle Rechnungen: <span th:text="${#lists.size(pdfs)}"></span></h4>
 					</div>
 					<div class="col-2">
 						<div class="dropdown mt-2">
@@ -24,7 +24,6 @@
 							<div class="dropdown-menu dropdown-primary">
 								<a class="dropdown-item" data-toggle="modal" data-target="#modalInvoiceUpload">PDF Hochladen</a>
 								<a class="dropdown-item" data-toggle="modal" data-target="#modalInvoiceDelete">PDF Löschen</a>
-								<a class="dropdown-item" >PDF Download</a>
 							</div>
 						</div>
 					</div>
@@ -95,7 +94,6 @@
 			<script th:inline="javascript">
 				let list = [[${pdfs}]];
 				let users = [[${users}]];
-				let number = 0;
 
 				$('#form-autocomplete').mdbAutocomplete({
 					data: users
@@ -121,7 +119,7 @@
 						processData: false,
 						contentType: false,
 						statusCode: {
-							403: function (response) {
+							400: function (response) {
 								$('#error-alert').html("Mindestens 1 PDF muss ausgewählt sein.<br> Ausgewählt ist sie wenn ein Haken vor dem namen angezeigt wird.");
 								$('#error-alert').css('display', 'block');
 							}
@@ -132,11 +130,46 @@
 					}).done(function(data){
 						location.reload();
 					});
+
+				});
+
+				$('#deleteInvoiceModalButton').on('click', () => {
+					let pdfs = getAllCheckboxes();
+					let username = $('#form-autocomplete').val();
+					let data = new FormData();
+					let token = $('#_csrf').attr('content');
+					let header = $('#_csrf_header').attr('content');
+					for (let i = 0; i < pdfs.length; i++) {
+						data.append('pdfList[]', pdfs[i]);
+					}
+					data.append('userName', username);
+					$.ajax({
+						type: 'DELETE',
+						url: '/verteilen',
+						data: data,
+						processData: false,
+						contentType: false,
+						statusCode: {
+							400: function (response) {
+								$('#error-alert-delete').html("Mindestens 1 PDF muss ausgewählt sein.<br>Ausgewählt ist sie, wenn ein Haken vor dem Namen angezeigt wird.");
+								$('#error-alert-delete').css('display', 'block');
+							},
+							403: function (response) {
+								$('#error-alert-delete').html("Für diese Aktion besitzt du nicht genug <br> Berechtigungen.");
+								$('#error-alert-delete').css('display', 'block');
+							},
+							200: function (response) {
+								location.reload();
+							}
+						},
+						beforeSend: function(xhr) {
+							xhr.setRequestHeader(header, token);
+						}
+					});
 				});
 			</script>
 
 			<script type="text/javascript"  th:src="@{/js/rechnungsmanager/verteilen.js}"></script>
-
 		</footer>
 	</body>
 </html>

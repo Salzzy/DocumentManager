@@ -41,7 +41,7 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<form id="uploadInvoiceForm" class="border border-light p-2" th:action="@{/verteilen/save}" method="post" enctype="multipart/form-data">
+			<form id="uploadInvoiceForm" class="border border-light p-2" th:action="@{/verteilen}" method="post" enctype="multipart/form-data">
 				<div class="file-field mt-3">
 					<div class="btn btn-primary btn-sm float-left">
 						<span>Datei auswählen</span>
@@ -71,11 +71,14 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				Bist du sicher, dass du die Artikelgruppe "<span id="deleteArtikelgruppeName"></span>" löschen möchtest?
+				<div id="error-alert-delete" class="alert alert-danger invincible" role="alert" style="display: none;">
+
+				</div>
+				<p>Alle ausgewählten Dokumente werden unwiederruflich gelöscht.</p>
 			</div>
 			<div class="modal-footer">
 				<a type="button" class="btn btn-secondary" data-dismiss="modal">Nein, abbruch!</a>
-				<a id="deleteArtikelgruppeModalButton" type="button" class="btn btn-danger">Ja, weg damit!</a>
+				<a id="deleteInvoiceModalButton" type="button" class="btn btn-danger">Ja, weg damit!</a>
 			</div>
 		</div>
 	</div>
