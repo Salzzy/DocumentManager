@@ -13,7 +13,7 @@
 			  <div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<ul class="navbar-nav mr-auto">
 				  <li class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/dashboard'} ? active">
-					<a class="nav-link" th:href="@{/dashboard}">Rechnungen</a>
+					<a class="nav-link" th:href="@{/rechnungen}">Rechnungen</a>
 				  </li>
 				  <li class="nav-item" sec:authorize="hasRole('ROLE_FIBU')" th:classappend="${#httpServletRequest.requestURI == '/verteilen'} ? active">
 					<a class="nav-link" th:href="@{/verteilen}">Verteilen</a>
