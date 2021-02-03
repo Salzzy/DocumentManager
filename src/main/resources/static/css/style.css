@@ -90,7 +90,7 @@
   background: linear-gradient(to left bottom, rgba(62, 69, 81, 0.7), rgba(0, 0, 0, 0.7)), url("/img/login-background.jpg") no-repeat center center fixed;
 }
 
-@media only screen and (min-height: 1270px) and (min-width: 1918px ){
+@media only screen and (min-height: 1270px){
     .login-page {
       -webkit-background-size: cover;
       -moz-background-size: cover;
