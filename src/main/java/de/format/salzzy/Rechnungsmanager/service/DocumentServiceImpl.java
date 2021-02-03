@@ -2,6 +2,9 @@ package de.format.salzzy.Rechnungsmanager.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,6 +47,16 @@ public class DocumentServiceImpl implements DocumentService {
 
 	@Override
 	public String getUserDocumentPath(User user) {
+		Path docsFolder = Paths.get(settingService.getSetting().getDocumentPath());
+		Path docsUserUtilFolder = Paths.get(settingService.getSetting().getDocumentUserUtilPath(user));
+
+		try {
+			if (!Files.exists(docsFolder)) Files.createDirectory(docsFolder);
+			if (!Files.exists(docsUserUtilFolder)) Files.createDirectories(docsUserUtilFolder);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		return settingService.getSetting().getDocumentUserPath(user);
 	}
 
