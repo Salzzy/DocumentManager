@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import de.format.salzzy.Rechnungsmanager.model.auth.User;
 import de.format.salzzy.Rechnungsmanager.service.UserService;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class VerteilerController {
@@ -73,7 +74,8 @@ public class VerteilerController {
 
 	@DeleteMapping("/verteilen")
 	@PreAuthorize("hasAnyAuthority('fibu:write')")
-	public ResponseEntity<Long> deleteDocument(@RequestParam("pdfList[]") String[] pdfs) {
+	public ResponseEntity<Long> deleteDocument(@RequestParam("pdfList[]") String[] pdfs)
+	{
 		Arrays.stream(pdfs)
 			.map(pdf -> Paths.get(documentService.getPublicInvoiceDocumentPath() + "\\" + pdf))
 			.forEach(pdf -> {
@@ -89,36 +91,44 @@ public class VerteilerController {
 	
 	@PostMapping("/verschieben")
 	@PreAuthorize("hasAnyAuthority('fibu:write')")
-	public String distributeDocument(@RequestParam("userName") String username, @RequestParam("pdfList[]") String[] pdfs) {
-
-		User user = userService.findByUsername(username);
-		String userFolderPath = documentService.getUserDocumentPath(user);
-		
+	public String distributeDocument(@RequestParam("userName") String username,
+									 @RequestParam("pdfList[]") String[] pdfs,
+									 RedirectAttributes redirectAttributes)
+	{
+		User receiver = userService.findByUsername(username);
+		String userFolderPath = documentService.getUserDocumentPath(receiver);
 		File rechnungsFolder = new File(documentService.getPublicInvoiceDocumentPath());
 		File[] documents = rechnungsFolder.listFiles();
-		Arrays.stream(documents).forEach(file -> {
-			String fileName = file.getName();
-			for(String pdf : pdfs) {
-				if(pdf.equals(fileName)) {
-					File source = new File(documentService.getPublicInvoiceDocumentPath() + "\\" + fileName);
-					File dest = new File(userFolderPath + "\\" + pdf);
-					try {
-						Files.move(source.toPath(), dest.toPath());
-					} catch (IOException e) {
-						e.printStackTrace();
+
+		if (documents != null) {
+			Arrays.stream(documents).forEach(file -> {
+				String fileName = file.getName();
+				for (String pdf : pdfs) {
+					if (pdf.equals(fileName)) {
+						File source = new File(documentService.getPublicInvoiceDocumentPath() + "\\" + fileName);
+						File dest = new File(userFolderPath + "\\" + pdf);
+						try {
+							Files.move(source.toPath(), dest.toPath());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
 				}
+			});
+			try {
+				documentService.sendNotification(receiver, pdfs.length);
+			} catch (NullPointerException e) {
+				redirectAttributes.addFlashAttribute("error", "Es konnte keine E-Mail an den Empfänger gesendet werden, <br> " +
+						"da er noch keine E-Mail mit seinem Account verknüpft hat.");
+				return "redirect:/verteilen";
 			}
-		});
-
-		try {
-			documentService.sendNotification(user, pdfs.length);
-		} catch(NullPointerException e) {
-			// return error no Email exists
 		}
+		else {
+			redirectAttributes.addFlashAttribute("error", "Es wurden keine Dokumente zum weiterleiten gefunden.");
+			return "redirect:/verteilen";
+		}
+		redirectAttributes.addFlashAttribute("success", "Die Dokumente konnten erfolgreich weitergeleitet werden. " +
+				"<br>Der Empfänger wurde benachrichtig.");
 		return "redirect:/verteilen";
 	}
-
-
-
 }
