@@ -9,11 +9,9 @@ public interface UserService {
 	
 	void save(User user);
 
+	void save(UserInfo userinfo);
+
 	User currentLoggedInUser();
-	
-	void saveUserInfo(User user, UserInfo userinfo);
-	
-	void saveNormal(User user);
 
     User findByUsername(String username);
     

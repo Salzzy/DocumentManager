@@ -33,20 +33,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void save(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Optional<Role> role = roleRepository.findById(1L);
-		role.ifPresent(user::setRole);
-        user.setUserinfo(new UserInfo());
         userRepository.save(user);
     }
+
+
+	@Override
+	public void save(UserInfo userinfo) {
+    	User user = currentLoggedInUser();
+    	user.setUserInfo(userinfo);
+    	userRepository.save(user);
+	}
 
 
 	@Override
 	public User currentLoggedInUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String currentPrincipalName = authentication.getName();
-		User user = findByUsername(currentPrincipalName);
-		return user;
+		return findByUsername(currentPrincipalName);
 	}
 
 
@@ -54,35 +57,6 @@ public class UserServiceImpl implements UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username).get();
     }
-
-
-	@Override
-	public void saveUserInfo(User user, UserInfo userinfo) {
-
-		User userAktuell = userRepository.findByUsername(user.getUsername()).get();
-		UserInfo aktuell = userAktuell.getUserinfo();
-
-		// Prüfe userDetails ab
-		// Signatur muss getrennt von Daten gespeichert werden
-		if(aktuell.getAbteilung() != userinfo.getAbteilung() && (userinfo.getAbteilung() != null || !userinfo.getAbteilung().isEmpty())) {
-			aktuell.setAbteilung(userinfo.getAbteilung());
-		}
-		if(aktuell.getEmail() != userinfo.getEmail() && (userinfo.getEmail() != null || !userinfo.getEmail().isEmpty())) {
-			aktuell.setEmail(userinfo.getEmail());
-		}
-		if(aktuell.getTelefonnr() != userinfo.getTelefonnr() && (userinfo.getTelefonnr() != null || !userinfo.getTelefonnr().isEmpty())) {
-			aktuell.setTelefonnr(userinfo.getTelefonnr());
-		} 
-		
-		userAktuell.setUserinfo(aktuell);
-		userRepository.save(userAktuell);
-	}
-
-
-	@Override
-	public void saveNormal(User user) {
-		userRepository.save(user);
-	}
 
 
 	@Override

@@ -1,84 +1,47 @@
 package de.format.salzzy.Rechnungsmanager.model;
 
 import de.format.salzzy.Rechnungsmanager.model.auth.User;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
+
+import static javax.persistence.GenerationType.*;
 
 @Entity
 @Table(name="user_info")
+@Getter
+@Setter
+@NoArgsConstructor
 public class UserInfo {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="user_id")
+	@GeneratedValue(strategy = IDENTITY)
+	@Column(name="id")
 	private Long id;
-	
-	@Column(name="email")
+
+	@Column(name = "email", unique = true)
 	private String email;
-	
-	@Column(name="abteilung")
+
+	@Column(name = "abteilung")
 	private String abteilung;
+
+	@Column(name = "telefon")
+	private String telefon;
+
+	@Column(name = "signature_file_name")
+	private String signatureFileName;
 	
-	@Column(name="telefonnr")
-	private String telefonnr;
-	
-	@Column(name="signatur")
-	@Lob
-	private byte[] signatur;
-	
-	@OneToOne(mappedBy = "userinfo")
+	@OneToOne(mappedBy = "userInfo")
 	private User user;
-	
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
+	public UserInfo(String email, String abteilung, String telefon, String signatureFileName, User user) {
 		this.email = email;
-	}
-
-	public String getAbteilung() {
-		return abteilung;
-	}
-
-	public void setAbteilung(String abteilung) {
 		this.abteilung = abteilung;
+		this.telefon = telefon;
+		this.signatureFileName = signatureFileName;
+		this.user = user;
 	}
-
-	public String getTelefonnr() {
-		return telefonnr;
-	}
-
-	public void setTelefonnr(String telefonnr) {
-		this.telefonnr = telefonnr;
-	}
-
-	public byte[] getSignatur() {
-		return signatur;
-	}
-
-	public void setSignatur(byte[] signatur) {
-		this.signatur = signatur;
-	}
-
-	
-	
-	
-	
 }

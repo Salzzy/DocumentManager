@@ -41,8 +41,8 @@ public class User implements UserDetails{
 	private boolean isEnabled;
 	
 	@OneToOne(cascade=CascadeType.ALL)
-	@JoinColumn(name="infoId", referencedColumnName="user_id", insertable=true, updatable=true)
-	private UserInfo userinfo;
+	@JoinColumn(name="user_info_id", referencedColumnName="id", insertable=true, updatable=true)
+	private UserInfo userInfo;
 
 	@OneToMany(mappedBy = "owner")
 	private Set<Document> document;
