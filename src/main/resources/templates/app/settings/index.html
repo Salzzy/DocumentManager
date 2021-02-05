@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="de">
-	<head th:replace="fragmente/head :: head(~{::title}, ~{})">
+	<head th:replace="fragmente/head :: head(~{::title}, ~{::link})">
 		<title>Einstellungen - Rechnungsmanager</title>
+
+		<!-- cropper css -->
+		<link rel="stylesheet" th:href="@{/node_modules/cropperjs/dist/cropper.min.css}" >
 	</head>
 
 	<body class="black-skin">
@@ -13,17 +16,17 @@
 				<div class="row">
 					<div class="col-12">
 						<h1 class="h1">Profileinstellungen von: <span sec:authentication="name"></span></h1>
-						<h4 class="h4 text-muted">Zugewiesene Rollen: <span sec:authentication="principal.authorities"></span></h4>
+						<h4 class="h4 text-muted">Zugewiesene Rolle: <span>[[${user.role.name}]]</span></h4>
 					</div>
 				</div>
 
 				<div class="row mt-5">
 					<div class="col-6">
-						<form id="profilForm" th:action="@{/settings/save/userinfo}" th:object="${userinfo}" method="POST">
+						<form id="profilForm" th:action="@{/settings/userinfo}" th:object="${userinfo}" method="POST">
 							<p class="h4 mb-4">Persönliche Daten:</p>
 
 							<div class="md-form">
-								<input type="email" id="email" name="email" th:field="*{email}" class="form-control mb-4" >
+								<input type="email" id="email" name="email" th:field="*{email}" class="form-control mb-4" required>
 								<label for="email">E-Mail</label>
 							</div>
 
@@ -34,7 +37,7 @@
 
 							<div class="md-form">
 								<!-- Phone number -->
-								<input type="tel" id="telefonnummer" name="telefonnummer" th:field="*{telefonnr}" class="form-control" aria-describedby="defaultRegisterFormPhoneHelpBlock">
+								<input type="tel" id="telefon" th:field="*{telefon}" class="form-control" aria-describedby="defaultRegisterFormPhoneHelpBlock">
 								<small id="telefonnummer" class="form-text text-muted mb-4">
 									Optional - für schnellere Kontaktaufnahme
 								</small>
@@ -42,119 +45,139 @@
 							</div>
 
 							<div class="md-form mt-3 text-center">
-								<img th:if="*{signatur} == null" th:src="@{/img/rect.png}" class="img-fluid" id="signatur" alt="Responsive image">
-								<img th:if="*{signatur != null}"  th:src="@{'data:image/png;base64,'+${signaturPic}}" class="img-fluid" id="signatur" alt="Responsive image">
-								<small id="signatur" class="form-text text-muted mb-4">
-									Die eigene Signatur
+								<img th:if="*{signatureFileName  == null}" th:src="@{/img/rect.png}" class="img-fluid"  alt="Responsive image">
+								<img th:if="*{signatureFileName != null}"  th:src="@{'/image/'+ *{signatureFileName}}" class="img-fluid" alt="Responsive image">
+								<small class="form-text text-muted mb-4">
+									Deine Signatur
 								</small>
 								<div class="text-center">
-								  <a href="" class="btn btn-default btn-rounded mb-4" data-toggle="modal" data-target="#modalLoginForm">Signatur ändern!</a>
+								  <a href="" class="btn btn-default btn-rounded mb-4" data-toggle="modal" data-target="#signatureImageUploadModal">Signatur ändern!</a>
 								</div>
 							</div>
-
 							<button class="btn btn-success" type="submit" id="speichern">Speichern</button>
 						</form>
-
 					</div>
 				</div>
 
-				<img id="showImg">
+
 			</div>
 		</main>
 
 
-		<div class="modal fade" id="modalLoginForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-			aria-hidden="true">
-			<div class="modal-dialog modal-lg" role="document">
-				<div class="modal-content">
-					<div class="modal-header text-center">
-						<h4 class="modal-title w-100 font-weight-bold">Signatur Hochladen!</h4>
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="modal-body mx-3">
-						<p id="sizeOfCropImg" style="display: none;"><span id="cropImgWidth"></span> x <span id="cropImgHeigth"></span></p>
-						<div id="containerOfSig" class="container-fluid" style="display: none;">
-							<img id="showSignature" src="#" class="img-fluid" />
-						</div>
-						<form id="signaturForm" enctype="multipart/form-data" th:action="@{/app/upload}" method="POST">
-							<div class="md-form mt-3 text-center">
-								<div class="file-field">
-									<div class="btn btn-primary btn-sm float-left">
-										<span>Datei auswählen</span>
-										<input type="file" name="file" id="file">
-									</div>
-									<div class="file-path-wrapper">
-										<input class="file-path validate" type="text" name="signaturName" id="signaturName" placeholder="Signatur hochladen">
-									</div>
-								</div>
-								<small id="labelSize" class="form-text text-muted mb-4">
-								Empfohlene Größe: 429 x 202
-								</small>
-							</div>
-
-							<a class="btn btn-success" id="hochladen">Hochladen</a>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
+		<div th:replace="app/settings/modules :: signaturImageUpload"></div>
 
 
 		<footer class="fixed-bottom" th:replace="fragmente/footer :: footer(~{::script})">
-			<!-- Cropper core JavaScript -->
-			<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.2/croppie.js"></script>
 
+			<!-- Cropper JS -->
+			<script type="text/javascript" th:src="@{/node_modules/cropperjs/dist/cropper.js}"></script>
 			<!-- Settings js -->
 			<script th:inline="javascript">
-				var resize = $('#showSignature').croppie({
-					enableExif: true,
-					enableOrientation: true,
-					viewport: { // Default { width: 100, height: 100, type: 'square' }
-						width: 429,
-						height: 202,
-						type: 'square' //square
-					},
-					boundary: {
-						width: 600,
-						height: 500
+				let token = $('#_csrf').attr('content');
+				let header = $('#_csrf_header').attr('content');
+
+				let preview = document.getElementById('sample_image');
+				let cropper;
+
+				// Ausgewähltes Bild einlesen und in preview Element ausgeben
+				function readURL(input) {
+					if (input.files && input.files[0]) {
+						var reader = new FileReader();
+						reader.onload = function(e) {
+							preview.src = e.target.result;
+						}
+						reader.readAsDataURL(input.files[0]); // convert to base64 string
 					}
+				}
+
+				$("#upload_image").change(function() {
+					readURL(this);
 				});
 
-				$('#file').on('change', function () {
-					var reader = new FileReader();
-					reader.onload = function (e) {
-						resize.croppie('bind',{
-							url: e.target.result
-						}).then(function(){
-							console.log('jQuery bind complete');
-						});
-					}
-					reader.readAsDataURL(this.files[0]);
-					$('#containerOfSig').css('display', 'block');
-				});
-
-				$('#hochladen').on('click', function (ev) {
-					resize.croppie('result', {
-						type: 'blob',
-						size: 'viewport'
-					}).then(function (img) {
-						img.filename = 'sigantur'
-						img.date = new Date();
-						var data = new FormData();
-						data.append('file', img);
-						$.ajax({
-							type: 'POST',
-							url: '/app/upload',
-							data: data,
-							processData: false,
-							contentType: false
-						}).done(function(data){
-							location.reload();
-						});
+				// Cropper lib kennt kein jQuery
+				preview.addEventListener('load', function(event) {
+					console.log(preview);
+					cropper = new Cropper(preview, {
+						aspectRatio: 16/4
 					});
 				});
+
+				$('#signature-form').on('submit', function(event) {
+					event.preventDefault();
+					cropper.getCroppedCanvas({
+						maxHeight: 202,
+						maxWidth: 429
+					}).toBlob(function (blob) {
+						const url = URL.createObjectURL(blob)
+						$('#croppedImage').attr('src', url);
+					});
+				});
+
+				// Wenn zugeschnittenes Bild geladen wurde, entferne die weißen Pixel
+				document.getElementById('croppedImage').addEventListener('load', function(event){
+					let img = document.getElementById('croppedImage');
+					let canvas = document.getElementById("canvas");
+					let ctx = canvas.getContext("2d");
+					canvas.height = event.target.height;
+					canvas.width = event.target.width;
+					ctx.drawImage(img,0,0);
+
+					let imgd = ctx.getImageData(0,0, 429, 202);
+					let	pix = imgd.data;
+					let	newColor = {r:0,g:0,b:0, a:0};
+
+					for (let i = 0, n = pix.length; i <n; i += 4) {
+						let r = pix[i], g = pix[i+1], b = pix[i+2];
+
+						if(r === 255 && g === 255 && b === 255){
+							// Change the white to the new color.
+							pix[i] = newColor.r;
+							pix[i+1] = newColor.g;
+							pix[i+2] = newColor.b;
+							pix[i+3] = newColor.a;
+						}
+					}
+					ctx.putImageData(imgd, 0, 0);
+					const file = dataURLtoBlob(canvas.toDataURL());
+					submitFormWithAjax(file);
+				});
+
+				function submitFormWithAjax(blob) {
+					let fd = new FormData();
+					fd.append('image', blob, 'signature.png');
+					$.ajax({
+						type: 'POST',
+						url: '/settings/userinfo/signature',
+						data: fd,
+						processData: false,
+						contentType: false,
+						beforeSend: function(xhr) {
+							xhr.setRequestHeader(header, token);
+						}
+					}).done(function(data) {
+						location.reload();
+					});
+				}
+
+				var dataURLtoBlob;
+
+				dataURLtoBlob = function(dataURL) {
+					var array, binary, i;
+					binary = atob(dataURL.split(',')[1]);
+					array = [];
+					i = 0;
+					while (i < binary.length) {
+						array.push(binary.charCodeAt(i));
+						i++;
+					}
+					return new Blob([new Uint8Array(array)], {
+						type: 'image/png'
+					});
+				};
+
+
+
+
 			</script>
 		</footer>
 	</body>
