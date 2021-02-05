@@ -103,6 +103,7 @@
 			<script th:inline="javascript">
 				let list = [[${pdfs}]];
 				let users = [[${users}]];
+				let number = 0; // Zum highlighten der ersten Rechnung
 
 				$('#form-autocomplete').mdbAutocomplete({
 					data: users
@@ -176,11 +177,6 @@
 						}
 					});
 				});
-
-				let successMessage = [[${success}]];
-				if(successMessage) {
-					toastr.success(successMessage);
-				}
 			</script>
 
 			<script type="text/javascript"  th:src="@{/js/rechnungsmanager/verteilen.js}"></script>
