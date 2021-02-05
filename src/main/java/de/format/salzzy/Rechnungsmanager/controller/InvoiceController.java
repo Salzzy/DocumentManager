@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,18 +50,15 @@ public class InvoiceController {
 
 	@GetMapping("/rechnungen")
 	@PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_FIBU', 'ROLE_ADMIN')")
-	public String home(Model theModel, @RequestParam("name") Optional<String> name)  {
-		
+	public String home(Model theModel, @RequestParam("name") Optional<String> name)
+	{
 		User user = userService.currentLoggedInUser();
 		String userFolderPath = documentService.getUserDocumentPath(user);
 		File userFolder = new File(userFolderPath);
-
-		if(!userFolder.exists()) userFolder.mkdir();
-
 		File[] files = userFolder.listFiles();
-
 		List<String> fileNames = null;
 		Integer amountOfFiles = null;
+
 		if (files != null) {
 			fileNames = Arrays.stream(files)
 					.map(File::getName)
@@ -77,13 +75,14 @@ public class InvoiceController {
 	
 	
 	@PostMapping("/rechnungUpload")
-	public String uploadRechnung(@RequestParam("file") MultipartFile file, @RequestParam("dateiName") String dateiName) {
-		
+	public String uploadRechnung(@RequestParam("file") MultipartFile file,
+								 @RequestParam("dateiName") String dateiName)
+	{
 		User user = userService.currentLoggedInUser();
 		String userFolder = documentService.getUserDocumentPath(user);
 		String destinationFilePath = userFolder + "\\" + file.getOriginalFilename();
-		
 		File fileDest = new File(destinationFilePath);
+
 		try {
 			file.transferTo(fileDest);
 		} catch (IllegalStateException | IOException e) {
@@ -107,83 +106,23 @@ public class InvoiceController {
 	public String stempeln(@RequestParam(name="prs", required=false) boolean preislich,
 						   @RequestParam(name="sach", required=false) boolean sachlich,
 						   @RequestParam("ksst") String kostenstelle,
-						   @RequestParam("name") String fileName)
+						   @RequestParam("name") String fileName) throws IOException
 	{
 		User user = userService.currentLoggedInUser();
-		fileName = fileName.replaceAll("_", " ");
-
+		String fileNameWithoutWhiteSpace = fileName.replaceAll("_", " ");
 		String userFolder = documentService.getUserDocumentPath(user);
-		byte[] signaturBytes = user.getUserinfo().getSignatur();
+		String userUtilsFolder = documentService.getUserDocumentUtilsPath(user);
+		File signatureFile = new File(userUtilsFolder + user.getUserInfo().getSignatureFileName());
+		byte[] signatureBytes = Files.readAllBytes(signatureFile.toPath());
 
-		// Pdf Stempeln 
 		try {
-			PdfStempeln.Stempeln(userFolder, preislich, sachlich, kostenstelle, fileName, user.getUsername(), signaturBytes);
-			File signedPdf = new File(FERTIG_DIR + fileName);
-
-			// Datei in User Ordner löschen
-			new File(userFolder + fileName).delete();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (DocumentException e) {
+			PdfStempeln.Stempeln(userFolder, preislich, sachlich, kostenstelle, fileNameWithoutWhiteSpace, user.getUsername(), signatureBytes);
+			File signedPdf = new File(FERTIG_DIR + fileNameWithoutWhiteSpace);
+			new File(userFolder + fileNameWithoutWhiteSpace).delete();
+		} catch (IOException | DocumentException e) {
 			e.printStackTrace();
 		}
-		
+
 		return "redirect:/rechnungen";
 	}
-	
-	
-	
-	@GetMapping("/pdf")
-	public ResponseEntity<byte[]> getPDF(@RequestParam("name") String fileName, @RequestParam(name="verteiler", required=false) boolean verteiler) throws IOException
-	{
-		User user = userService.currentLoggedInUser();
-		String fileNameWithoutSpace = fileName.replaceAll("_", " ");
-		String filePath = documentService.getUserDocumentPath(user) + fileNameWithoutSpace;
-
-		if(verteiler) filePath = documentService.getPublicInvoiceDocumentPath() + fileNameWithoutSpace;
-
-		File quellFile = new File(filePath);
-		byte[] encodedBase64 = Files.readAllBytes(quellFile.toPath());
-		String filename = quellFile.getName();
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.parseMediaType("application/pdf"));
-		headers.add("content-disposition", "inline;filename="+filename);
-		headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
-		return new ResponseEntity<byte[]>(encodedBase64, headers, HttpStatus.OK);
-	}
-	
-	@GetMapping("/png")
-	public ResponseEntity<byte[]> getPNG(@RequestParam("name") String fileName) throws IOException
-	{
-		User user = userService.currentLoggedInUser();
-		String filePath = documentService.getUserDocumentPath(user) + "\\utils\\" + fileName;
-		File quellFile = new File(filePath);
-		byte[] encodedBase64 = Files.readAllBytes(quellFile.toPath());
-		String filename = quellFile.getName();
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.parseMediaType("application/png"));
-		headers.add("content-disposition", "inline;filename="+filename);
-		headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
-		return new ResponseEntity<byte[]>(encodedBase64, headers, HttpStatus.OK);
-	}
-	
-	
-	@GetMapping("/jpg")
-	public ResponseEntity<byte[]> getJPG(@RequestParam("name") String fileName) throws IOException
-	{
-		User user = userService.currentLoggedInUser();
-		String filePath = documentService.getUserDocumentPath(user) + "\\utils\\" + fileName;
-		File quellFile = new File(filePath);
-		byte[] encodedBase64 = Files.readAllBytes(quellFile.toPath());
-		String filename = quellFile.getName();
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.parseMediaType("application/jpg"));
-		headers.add("content-disposition", "inline;filename="+filename);
-		headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
-		return new ResponseEntity<byte[]>(encodedBase64, headers, HttpStatus.OK);
-	}
-
 }
