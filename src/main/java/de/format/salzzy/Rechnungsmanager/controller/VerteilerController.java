@@ -127,8 +127,6 @@ public class VerteilerController {
 			redirectAttributes.addFlashAttribute("error", "Es wurden keine Dokumente zum weiterleiten gefunden.");
 			return "redirect:/verteilen";
 		}
-		redirectAttributes.addFlashAttribute("success", "Die Dokumente konnten erfolgreich weitergeleitet werden. " +
-				"<br>Der Empfänger wurde benachrichtig.");
 		return "redirect:/verteilen";
 	}
 }
