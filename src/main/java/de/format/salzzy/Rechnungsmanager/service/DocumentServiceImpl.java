@@ -46,6 +46,11 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
+	public String getUserDocumentUtilsPath(User user) {
+		return settingService.getSetting().getDocumentUserUtilPath(user);
+	}
+
+	@Override
 	public String getUserDocumentPath(User user) {
 		Path docsFolder = Paths.get(settingService.getSetting().getDocumentPath());
 		Path docsUserUtilFolder = Paths.get(settingService.getSetting().getDocumentUserUtilPath(user));
@@ -59,6 +64,7 @@ public class DocumentServiceImpl implements DocumentService {
 
 		return settingService.getSetting().getDocumentUserPath(user);
 	}
+
 
 	@Override
 	public List<String> getFileNames(File folder) {
@@ -84,7 +90,7 @@ public class DocumentServiceImpl implements DocumentService {
 	    String dateString = formatter.format(date);  
 	
 		SimpleMailMessage msg = new SimpleMailMessage();
-		msg.setTo(user.getUserinfo().getEmail());
+		msg.setTo(user.getUserInfo().getEmail());
 		msg.setSubject("Es wurden Rechnungen in ihre Ablage gelegt.");
 		msg.setText(dateString + " Sie haben " + anzahl + " Rechnungen erhalten, die Sie freigeben müssen!");
 		
@@ -95,12 +101,15 @@ public class DocumentServiceImpl implements DocumentService {
 	public String saveFile(MultipartFile file) throws IOException {
 		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 		String uploadPath = settingService.getSetting().getDocumentInvoicePath();
-		System.out.println(uploadPath);
-		System.out.println(fileName);
 		fileUploadUtils.saveFile(uploadPath, fileName, file);
-
 		return uploadPath+file.getOriginalFilename();
 	}
 
-
+	@Override
+	public String saveFile(MultipartFile file, String path) throws IOException {
+		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+		String uploadPath = StringUtils.cleanPath(path);
+		fileUploadUtils.saveFile(uploadPath, fileName, file);
+		return uploadPath+file.getOriginalFilename();
+	}
 }
