@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import de.format.salzzy.Rechnungsmanager.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,7 @@ public class SettingController {
 	}
 
 	@GetMapping("/settings")
+	@PreAuthorize("hasAuthority('user:read')")
 	public String settings(Model theModel)
 	{
 		User user = userService.currentLoggedInUser();
@@ -44,6 +46,7 @@ public class SettingController {
 	
 	
 	@PostMapping("/settings/userinfo")
+	@PreAuthorize("hasAuthority('user:write')")
 	public String save(@ModelAttribute("userinfo") UserInfo userinfo)
 	{
 		userService.save(userinfo);
@@ -52,12 +55,21 @@ public class SettingController {
 	
 	
 	@PostMapping("/settings/userinfo/signature")
+	@PreAuthorize("hasAuthority('user:write')")
 	public String upload(@RequestParam("image") MultipartFile signatureImage) throws IOException
 	{
 		User user = userService.currentLoggedInUser();
 		String fullFilePath = documentService.saveFile(signatureImage, documentService.getUserDocumentUtilsPath(user));
 		user.getUserInfo().setSignatureFileName(signatureImage.getOriginalFilename());
 		userService.save(user);
+		return "redirect:/settings";
+	}
+
+	@PostMapping("/settings/stempel")
+	@PreAuthorize("hasAuthority('fibu:write')")
+	public String saveStempel()
+	{
+
 		return "redirect:/settings";
 	}
 

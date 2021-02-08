@@ -20,97 +20,89 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.PdfWriter;
+import de.format.salzzy.Rechnungsmanager.model.auth.User;
+import de.format.salzzy.Rechnungsmanager.service.DocumentService;
+import de.format.salzzy.Rechnungsmanager.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PdfStempeln {
 
-	// Pfade der benutzten Bilder
-	private static String STAMP_PIC_PATH = "C:\\Users\\salzmann\\Desktop\\Test-Umgebung\\test\\stempel-transparent.png";
-	private static String CHECK_HOOK_PIC_PATH = "C:\\Users\\salzmann\\Desktop\\Test-Umgebung\\test\\check-mark.png";
-	
-	
-	// Pfad in der die Fertige Rechnung abgelegt wird
-	private static String RECHNUNG_PFAD = "C:\\Users\\salzmann\\Desktop\\Test-Umgebung\\FIBU\\Rechnungen_Freigegeben\\";
-	
-	
-	/*
-	 * Erhält: Pfad zu dem Verzeichniss
-	 * 
-	 * 
-	 * Variablen Definition
-	 * path: Pfad des Userverzeichnis in der die Rechnungen liegen
-	 * sachlich: Um Sachlich-Haken zu setzen
-	 * preislich: Um Preislich-Haken zu setzen
-	 * kostenstelle: Name der kostenstelle
-	 * fileName: Name + Endung der Rechnungsdatei
-	 * username: Benutername des Users
-	 * signaturBytes: Blob aus der DB (Signatur)
-	 */
-	public static void Stempeln(String path, boolean sachlich, boolean preislich,
-								String kostenstelle, String fileName, String username, byte[] signaturBytes)  throws IOException, DocumentException {
-		
-		// Aktuelles Datum erstellen
+	private final DocumentService documentService;
+	private final UserService userService;
+
+	@Autowired
+	public PdfStempeln(DocumentService documentService, UserService userService)
+	{
+		this.documentService = documentService;
+		this.userService = userService;
+	}
+
+	/**
+	 * Zeichnet den "Rechnungsprüfung" Stempel auf die Pdf. <br>
+	 * Danach wird die Pdf in den Freigegeben Ordner verschoben
+	 *
+	 * @throws IOException Wenn Dateipfad/e konnten nicht gefunden werden
+	 * @param sachlich Um Sachlich-Haken zu setzen
+	 * @param preislich Um Preislich-Haken zu setzen
+	 * @param kostenstelle Name der kostenstelle
+	 * @param fileName Name + Endung der Rechnungsdatei
+	 * @param signaturBytes Blob aus der DB (Signatur)
+	 **/
+	public void stempeln(boolean sachlich, boolean preislich,
+						 String kostenstelle, String fileName,
+						 byte[] signaturBytes) throws IOException, DocumentException
+	{
 		Date now = new Date();
 		SimpleDateFormat sf = new SimpleDateFormat("dd.MM.yyyy");
+		User user = userService.currentLoggedInUser();
 		String dateString = sf.format(now);
+		String stempPicPath = documentService.getSystemDocumentPath() + "stempel-digital.png";
+		String checkPicPath = documentService.getSystemDocumentPath() + "check-mark.png";
+		String pdfToStemp = documentService.getUserDocumentPath(user) + fileName;
 		
-		// Erstelle String für Datei => Zu stempelnde Pdf
-		// Kompletter Dateipfad + Datei
-		String TO_STAMP_PDF = path + fileName;
-		
-		// Lade Signatur von Bytes aus Datenbank
+		// Dateien laden
 		BufferedImage signatur = ImageIO.read(new ByteArrayInputStream(signaturBytes));
+		BufferedImage stamp = ImageIO.read(new File(stempPicPath));
+		BufferedImage haken = ImageIO.read(new File(checkPicPath));
 		
-		// Lade stempel aus Datei
-		BufferedImage stamp = ImageIO.read(
-				new File(STAMP_PIC_PATH));
-		
-		// Lade haken aus Datei
-		BufferedImage haken = ImageIO.read(
-				new File(CHECK_HOOK_PIC_PATH));
-		
-		// Lade Liste mit Images von einer PDF
-		// Pdf wird in Bilder umgewandelt
-		List<BufferedImage> pdfImages = ToImage.umwandel(TO_STAMP_PDF);
+		// Pdf Seiten umwandlen in Bilderliste
+		List<BufferedImage> pdfImages = ToImage.umwandel(pdfToStemp);
 		
 		// Erstes Bild von der Pdf erhalten
 		BufferedImage picFromPDF = pdfImages.get(0);
-	
 		Graphics g2d = stamp.createGraphics();
-		
+
 		// Datum platzieren
 		g2d.setFont(new Font("Arial", Font.BOLD, 32));
 		g2d.setColor(Color.BLACK);
-		g2d.drawString(dateString, 40, (stamp.getHeight() - signatur.getHeight() + 110));
-		
+		g2d.drawString(dateString, 20, (stamp.getHeight() - (32 + 15)));
+
 		// Signatur auf dem ersten Bild der Pdf platzieren
-		g2d.drawImage(signatur, 200, (stamp.getHeight() - signatur.getHeight() - 50), null);
-		
+		g2d.drawImage(signatur, 200, (stamp.getHeight() - (signatur.getHeight() + 35)), null);
+
 		// Kostenstelle platzieren
 		g2d.setFont(new Font("Arial", Font.BOLD, 38));
 		g2d.setColor(Color.BLACK);
-		g2d.drawString(kostenstelle, 320, 143);
+		g2d.drawString(kostenstelle, 320, 120);
 		
 		// Sachlich Haken platzieren
-		if(sachlich) {
-			g2d.drawImage(haken, 350, 170, null);
-		}
+		if(sachlich) g2d.drawImage(haken, 370, 160, null);
 		// Preislich Haken platzieren
-		// (name, <>, I, null)
-		if(preislich) {
-			g2d.drawImage(haken, 350, 220, null);
-		}
-		
+		if(preislich) g2d.drawImage(haken, 370, 205,  null);
+
 		// Stempel Image "schließen"
 		g2d.dispose();
-		
+
+		// Fertigen Stempel auf erste Pdfseite drucken
 		g2d = picFromPDF.createGraphics();
-		g2d.drawImage(stamp, 50, picFromPDF.getHeight() - stamp.getHeight(), null);
+		g2d.drawImage(stamp, 15, picFromPDF.getHeight() - stamp.getHeight() - 305, null);
 		g2d.dispose();
 
-		
 		// PDF wieder Zusammensetzen und abspeichern in neuen Pfad
 		Document document = new Document(PageSize.A4, 20, 20, 20, 20);   // Create document with a4 Size
-		PdfWriter.getInstance(document, new FileOutputStream(RECHNUNG_PFAD + fileName));  // Create pdf Writer to set pdf options
+		PdfWriter.getInstance(document, new FileOutputStream(documentService.getPublicInvoiceDocumentPath() + "/Freigegeben/" + fileName));  // Create pdf Writer to set pdf options
 		document.open();
 		
 		for(BufferedImage img : pdfImages){
@@ -122,10 +114,7 @@ public class PdfStempeln {
             document.add(tempImage); // add to document pdf
             document.newPage();
         }
-		
-		// Pdf schließen
-		document.close();
-				
+		document.close(); // Pdf schließen
 	}
 	
 }

@@ -41,11 +41,14 @@ public class InvoiceController {
 	private final UserService userService;
 	private final DocumentService documentService;
 
+	private final PdfStempeln pdfStempeln;
+
 	@Autowired
-	public InvoiceController(UserService userService, DocumentService documentService)
+	public InvoiceController(UserService userService, DocumentService documentService, PdfStempeln pdfStempeln)
 	{
 		this.documentService = documentService;
 		this.userService = userService;
+		this.pdfStempeln = pdfStempeln;
 	}
 
 	@GetMapping("/rechnungen")
@@ -116,7 +119,7 @@ public class InvoiceController {
 		byte[] signatureBytes = Files.readAllBytes(signatureFile.toPath());
 
 		try {
-			PdfStempeln.Stempeln(userFolder, preislich, sachlich, kostenstelle, fileNameWithoutWhiteSpace, user.getUsername(), signatureBytes);
+			pdfStempeln.stempeln(preislich, sachlich, kostenstelle, fileNameWithoutWhiteSpace, signatureBytes);
 			File signedPdf = new File(FERTIG_DIR + fileNameWithoutWhiteSpace);
 			new File(userFolder + fileNameWithoutWhiteSpace).delete();
 		} catch (IOException | DocumentException e) {

@@ -46,6 +46,13 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
+	public String getSystemDocumentPath() throws IOException {
+		Path systemPath = Paths.get(settingService.getSetting().getDocumentSystemPath());
+		if (!Files.exists(systemPath)) Files.createDirectories(systemPath);
+		return systemPath.toString();
+	}
+
+	@Override
 	public String getUserDocumentUtilsPath(User user) {
 		return settingService.getSetting().getDocumentUserUtilPath(user);
 	}

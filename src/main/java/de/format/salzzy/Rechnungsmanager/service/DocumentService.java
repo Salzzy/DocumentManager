@@ -24,6 +24,12 @@ public interface DocumentService {
 	String getPublicInvoiceDocumentPath();
 
 	/**
+	 * Hier ist allgemeine Dateien abgelegt wie stempel etc.
+	 * @return String
+	 */
+	String getSystemDocumentPath() throws IOException;
+
+	/**
 	 * Der User ordner, hier sind Rechnungen enthalten,
 	 * die der User noch freigeben muss etc..
 	 * @param user

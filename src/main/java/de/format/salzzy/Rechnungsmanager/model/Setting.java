@@ -32,4 +32,8 @@ public class Setting {
         return this.documentPath + "Rechnungen/";
     }
 
+    public String getDocumentSystemPath(){
+        return this.documentPath + "System/";
+    }
+
 }
