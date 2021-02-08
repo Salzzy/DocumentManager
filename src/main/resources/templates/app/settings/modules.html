@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="de">
     <div th:fragment="signaturImageUpload" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
          aria-hidden="true" id="signatureImageUploadModal">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header text-center">
                     <h4 class="modal-title w-100 font-weight-bold">Signatur Hochladen!</h4>
@@ -21,20 +21,23 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row mt-4">
                         <div class="col-12">
                             <form enctype="multipart/form-data" id="signature-form" th:action="@{/settings/userinfo/signature}" method="POST">
-                                <div class="md-form mt-3 text-center">
-                                    <div class="file-field">
-                                        <div class="btn btn-primary btn-sm float-left">
-                                            <span>Datei auswählen</span>
-                                            <input type="file" name="image" id="upload_image" class="form-control">
-                                        </div>
+
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
                                     </div>
-                                    <small id="labelSize" class="form-text text-muted mb-4">
-                                        Empfohlene Größe: 429 x 202
-                                    </small>
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" name="image" id="upload_image"
+                                               aria-describedby="inputGroupFileAddon01">
+                                        <label class="custom-file-label" for="inputGroupFile01">Wähle eine Datei</label>
+                                    </div>
                                 </div>
+                                <small id="labelSize" class="form-text text-muted mb-4">
+                                    Empfohlene Größe: 429 x 202
+                                </small>
 
                                 <button type="submit" class="btn btn-success" id="cropAndUpload">Hochladen</button>
                             </form>
