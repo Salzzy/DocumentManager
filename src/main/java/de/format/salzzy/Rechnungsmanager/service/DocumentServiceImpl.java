@@ -11,7 +11,10 @@ import java.util.Date;
 import java.util.List;
 
 import de.format.salzzy.Rechnungsmanager.Utils.FileUploadUtils;
+import de.format.salzzy.Rechnungsmanager.model.Document;
+import de.format.salzzy.Rechnungsmanager.repository.DocumentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -23,16 +26,21 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class DocumentServiceImpl implements DocumentService {
 	
-	private JavaMailSender javaMailSender;
-	private SettingService settingService;
+	private final JavaMailSender javaMailSender;
+	private final SettingService settingService;
+	private final UserService userService;
 
-	private FileUploadUtils fileUploadUtils;
+	private final DocumentRepository documentRepository;
+
+	private final FileUploadUtils fileUploadUtils;
 	
 	@Autowired
-	public DocumentServiceImpl(JavaMailSender javaMailSender, SettingService settingService, FileUploadUtils fileUploadUtils) {
+	public DocumentServiceImpl(JavaMailSender javaMailSender, SettingService settingService, FileUploadUtils fileUploadUtils, DocumentRepository documentRepository, UserService userService) {
 		this.javaMailSender = javaMailSender;
 		this.settingService = settingService;
 		this.fileUploadUtils = fileUploadUtils;
+		this.documentRepository = documentRepository;
+		this.userService = userService;
 	}
 
 	@Override
@@ -108,7 +116,18 @@ public class DocumentServiceImpl implements DocumentService {
 	public String saveFile(MultipartFile file) throws IOException {
 		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 		String uploadPath = settingService.getSetting().getDocumentInvoicePath();
+		String absolutePath = uploadPath + fileName;
+		Document lastDocument = documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).get(0);
 		fileUploadUtils.saveFile(uploadPath, fileName, file);
+		documentRepository.save(new Document(
+				lastDocument.getHash(),
+				fileName,
+				absolutePath,
+				22002, 
+				userService.currentLoggedInUser()
+				));
+
+
 		return uploadPath+file.getOriginalFilename();
 	}
 

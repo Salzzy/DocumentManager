@@ -78,6 +78,7 @@ public class InvoiceController {
 	
 	
 	@PostMapping("/rechnungUpload")
+	@PreAuthorize("hasAuthority('user:write')")
 	public String uploadRechnung(@RequestParam("file") MultipartFile file,
 								 @RequestParam("dateiName") String dateiName)
 	{
@@ -105,7 +106,8 @@ public class InvoiceController {
 	}
 	
 	
-	@GetMapping("/stempeln")
+	@PostMapping("/stempeln")
+	@PreAuthorize("hasAuthority('user:write')")
 	public String stempeln(@RequestParam(name="prs", required=false) boolean preislich,
 						   @RequestParam(name="sach", required=false) boolean sachlich,
 						   @RequestParam("ksst") String kostenstelle,
@@ -120,7 +122,6 @@ public class InvoiceController {
 
 		try {
 			pdfStempeln.stempeln(preislich, sachlich, kostenstelle, fileNameWithoutWhiteSpace, signatureBytes);
-			File signedPdf = new File(FERTIG_DIR + fileNameWithoutWhiteSpace);
 			new File(userFolder + fileNameWithoutWhiteSpace).delete();
 		} catch (IOException | DocumentException e) {
 			e.printStackTrace();
