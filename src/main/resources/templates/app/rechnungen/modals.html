@@ -14,7 +14,8 @@
 		        </button>
 	    	</div>
 	      	<form class="border border-light p-2" method="post" th:action="@{/stempeln}">
-				
+
+				<input type="hidden" th:value="">
 				<input th:if="${pdfs!=null and !pdfs.empty}" type="hidden" th:value="${pdfs[0]}" id="name" name="name">
 				<!-- Material input -->
 				<div class="md-form">

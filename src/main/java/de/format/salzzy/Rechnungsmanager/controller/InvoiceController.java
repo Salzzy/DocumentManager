@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import de.format.salzzy.Rechnungsmanager.model.Document;
 import de.format.salzzy.Rechnungsmanager.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -111,7 +112,8 @@ public class InvoiceController {
 	public String stempeln(@RequestParam(name="prs", required=false) boolean preislich,
 						   @RequestParam(name="sach", required=false) boolean sachlich,
 						   @RequestParam("ksst") String kostenstelle,
-						   @RequestParam("name") String fileName) throws IOException
+						   @RequestParam("name") String fileName,
+						   @RequestParam("id") Document document) throws IOException
 	{
 		User user = userService.currentLoggedInUser();
 		String fileNameWithoutWhiteSpace = fileName.replaceAll("_", " ");
