@@ -103,11 +103,16 @@
 			<script th:inline="javascript">
 				let list = [[${pdfs}]];
 				let users = [[${users}]];
+				let success = [[${success}]]
 				let number = 0; // Zum highlighten der ersten Rechnung
 
 				$('#form-autocomplete').mdbAutocomplete({
 					data: users
 				});
+
+				if (success) {
+					toastr.success(success);
+				}
 
 				$('#submitWeiterleiten').on('click', function (ev) {
 					let pdfs = getAllCheckboxes();

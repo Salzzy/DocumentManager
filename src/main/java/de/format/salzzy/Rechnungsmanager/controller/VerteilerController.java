@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,13 +60,18 @@ public class VerteilerController {
 
 	@PostMapping("/verteilen")
 	@PreAuthorize("hasAnyAuthority('fibu:write')")
-	public String saveDocument(@RequestParam("file") MultipartFile mpf)
+	public String saveDocument(@RequestParam("file") MultipartFile mpf, RedirectAttributes redirectAttributes)
 	{
 		try {
 			String docPath = documentService.saveFile(mpf);
 		} catch (IOException e) {
-			e.printStackTrace();
+			redirectAttributes.addFlashAttribute("error", "Es ist ein Fehler mit einer Datei oder dem Dateipfad unterlaufen.");
+			return "redrect:/verteilen";
+		} catch (NoSuchAlgorithmException ex) {
+			redirectAttributes.addFlashAttribute("error", "Der Hash-Algorithmus konnte nicht ermittelt werden");
+			return "redirect:/verteilen";
 		}
+		redirectAttributes.addFlashAttribute("success", "Datei wurde sicher abgespeichert.");
 		return "redirect:/verteilen";
 	}
 
