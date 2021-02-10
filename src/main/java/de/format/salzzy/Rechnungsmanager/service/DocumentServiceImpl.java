@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -113,20 +114,21 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public String saveFile(MultipartFile file) throws IOException {
+	public String saveFile(MultipartFile file) throws IOException, NoSuchAlgorithmException {
 		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 		String uploadPath = settingService.getSetting().getDocumentInvoicePath();
 		String absolutePath = uploadPath + fileName;
 		Document lastDocument = documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).get(0);
 		fileUploadUtils.saveFile(uploadPath, fileName, file);
-		documentRepository.save(new Document(
+
+		documentRepository.save(
+			new Document(
 				lastDocument.getHash(),
 				fileName,
 				absolutePath,
-				22002, 
 				userService.currentLoggedInUser()
-				));
-
+			)
+		);
 
 		return uploadPath+file.getOriginalFilename();
 	}
@@ -137,5 +139,10 @@ public class DocumentServiceImpl implements DocumentService {
 		String uploadPath = StringUtils.cleanPath(path);
 		fileUploadUtils.saveFile(uploadPath, fileName, file);
 		return uploadPath+file.getOriginalFilename();
+	}
+
+	@Override
+	public List<Document> findAll(Sort sort) {
+		return documentRepository.findAll(sort);
 	}
 }

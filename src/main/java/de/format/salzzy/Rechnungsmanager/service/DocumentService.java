@@ -2,9 +2,12 @@ package de.format.salzzy.Rechnungsmanager.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import de.format.salzzy.Rechnungsmanager.model.Document;
 import de.format.salzzy.Rechnungsmanager.model.auth.User;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface DocumentService {
@@ -60,7 +63,7 @@ public interface DocumentService {
 	 * @return java.lang.String
 	 * @throws IOException
 	 */
-	String saveFile(MultipartFile file) throws IOException;
+	String saveFile(MultipartFile file) throws IOException, NoSuchAlgorithmException;
 
 	/**
 	 * Speichert die hochgeladene Datei in Filesystem
@@ -75,6 +78,7 @@ public interface DocumentService {
 	// delete document
 
 	// utils folder of user => username/utils
+	List<Document> findAll(Sort sort);
 
 
 }

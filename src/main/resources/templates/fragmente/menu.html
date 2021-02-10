@@ -5,33 +5,34 @@
 	<header th:fragment="menu">
 		<nav class="navbar navbar-expand-lg navbar-dark black">
 			<div class="container">
-			  <a class="navbar-brand" href="#"><strong>Rechnungsmanager v0.1</strong></a>
-			  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-				aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			  </button>
-			  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-				<ul class="navbar-nav mr-auto">
-				  <li class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/rechnungen'} ? active">
-					<a class="nav-link" th:href="@{/rechnungen}">Rechnungen</a>
-				  </li>
-				  <li class="nav-item" sec:authorize="hasRole('ROLE_FIBU')" th:classappend="${#httpServletRequest.requestURI == '/verteilen'} ? active">
-					<a class="nav-link" th:href="@{/verteilen}">Verteilen</a>
-				  </li>
-				  <li class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/settings'} ? active">
-					<a class="nav-link" th:href="@{/settings}">Einstellungen</a>
-				  </li>
-				  <li class="nav-item">
-					<a class="nav-link" href="mailto:A.Salzmann@format-tresorbau.de">Hilfe</a>
-				  </li>
-				  <li class="nav-item">
-					  <a class="nav-link" href="javascript:document.getElementById('logoutForm').submit();">Abmelden</a>
-					  <form id="logoutForm" method="post" th:action="@{/logout}">
-
-					  </form>
-				  </li>
-				</ul>
-			  </div>
+				<a class="navbar-brand" href="#"><strong>Rechnungsmanager v0.1</strong></a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+					aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav mr-auto">
+						<li class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/rechnungen'} ? active">
+							<a class="nav-link" th:href="@{/rechnungen}">Rechnungen</a>
+						</li>
+						<li class="nav-item" sec:authorize="hasRole('ROLE_FIBU')" th:classappend="${#httpServletRequest.requestURI == '/verteilen'} ? active">
+							<a class="nav-link" th:href="@{/verteilen}">Verteilen</a>
+						</li>
+						<li class="nav-item" sec:authorize="hasRole('ROLE_FIBU')" th:classappend="${#httpServletRequest.requestURI == '/documents'} ? active">
+							<a class="nav-link" th:href="@{/documents}">Dokumente</a>
+						</li>
+						<li class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/settings'} ? active">
+							<a class="nav-link" th:href="@{/settings}">Einstellungen</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="mailto:A.Salzmann@format-tresorbau.de">Hilfe</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="javascript:document.getElementById('logoutForm').submit();">Abmelden</a>
+							<form id="logoutForm" method="post" th:action="@{/logout}"></form>
+						</li>
+					</ul>
+				</div>
 			</div>
 		</nav>
 	</header>
