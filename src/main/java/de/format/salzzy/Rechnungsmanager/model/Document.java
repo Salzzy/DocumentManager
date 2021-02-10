@@ -16,6 +16,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Objects;
 
 import static com.google.common.io.Files.toByteArray;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -49,52 +50,47 @@ public class Document {
     @JoinColumn(name = "userId", nullable = true)
     private User owner;
 
-    public Document(String previousHash, String fileName, String documentPath, int nonce, User owner) {
+    public Document(String previousHash, String fileName, String documentPath, User owner) throws IOException, NoSuchAlgorithmException {
         this.previousHash = previousHash;
         this.fileName = fileName;
         this.documentPath = documentPath;
         this.timestamp = new Date();
-        this.nonce = nonce;
         this.owner = owner;
+        this.nonce = 1;
         this.hash = calculateDocumentHash();
     }
 
-    private String calculateDocumentHash()
-    {
-        String dataToHash = previousHash
-                + Long.toString(timestamp.getTime())
-                + Integer.toString(nonce)
-                + fileName
-                + documentPath
-                + fileHash();
-        // System.out.printf("FileHash: %s%n", fileHash());
+    private String calculateDocumentHash() throws IOException, NoSuchAlgorithmException {
         MessageDigest messageDigest = null;
-        byte[] bytes =null;
-        try {
+        byte[] bytes = null;
+        String documentBlockHash = "";
+
+        while (!documentBlockHash.startsWith("00")){
+            this.nonce++;
+            String dataToHash = previousHash
+                    + Long.toString(timestamp.getTime())
+                    + Integer.toString(nonce)
+                    + fileName
+                    + documentPath
+                    + fileHash();
+
             messageDigest = MessageDigest.getInstance("SHA-256");
             bytes = messageDigest.digest(dataToHash.getBytes(UTF_8));
-        } catch (NoSuchAlgorithmException ex) {
-            ex.printStackTrace();
+
+            documentBlockHash = buildStringOfHash(bytes);
         }
-        return buildStringOfHash(bytes);
+        return documentBlockHash;
     }
 
-    private String fileHash()
-    {
+    private String fileHash() throws IOException, NoSuchAlgorithmException {
         Path file = Paths.get(documentPath);
         byte[] fileToBytes = null;
-        try {
-            fileToBytes = toByteArray(file.toFile());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         MessageDigest messageDigest = null;
-        try {
-            messageDigest = MessageDigest.getInstance("SHA-256");
-            fileToBytes = messageDigest.digest(fileToBytes);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
+
+        fileToBytes = toByteArray(file.toFile());
+        messageDigest = MessageDigest.getInstance("SHA-256");
+        fileToBytes = messageDigest.digest(fileToBytes);
+
         return buildStringOfHash(fileToBytes);
     }
 
@@ -105,7 +101,6 @@ public class Document {
             for (byte b : bytes) {
                 // Byte konvertiert zu Hexadecimalen wert
                 buffer.append(String.format("%02x", b));
-                // System.out.printf("The Hexadecimal Byte: %02x%n The corresponding String: %s%n", b, buffer.toString().charAt(buffer.toString().length()-1));
             }
         }
         return buffer.toString();
