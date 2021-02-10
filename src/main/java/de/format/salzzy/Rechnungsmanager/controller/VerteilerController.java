@@ -100,7 +100,7 @@ public class VerteilerController {
 									 RedirectAttributes redirectAttributes)
 	{
 		User receiver = userService.findByUsername(username);
-		String userFolderPath = documentService.getUserDocumentPath(receiver);
+		String receiverFolderPath = documentService.getUserDocumentPath(receiver);
 		File rechnungsFolder = new File(documentService.getPublicInvoiceDocumentPath());
 		File[] documents = rechnungsFolder.listFiles();
 
@@ -110,7 +110,7 @@ public class VerteilerController {
 				for (String pdf : pdfs) {
 					if (pdf.equals(fileName)) {
 						File source = new File(documentService.getPublicInvoiceDocumentPath() + "\\" + fileName);
-						File dest = new File(userFolderPath + "\\" + pdf);
+						File dest = new File(receiverFolderPath + "\\" + pdf);
 						try {
 							Files.move(source.toPath(), dest.toPath());
 						} catch (IOException e) {
