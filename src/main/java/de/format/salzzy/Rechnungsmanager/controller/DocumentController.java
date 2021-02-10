@@ -1,6 +1,7 @@
 package de.format.salzzy.Rechnungsmanager.controller;
 
 import de.format.salzzy.Rechnungsmanager.model.Document;
+import de.format.salzzy.Rechnungsmanager.service.ActivityService;
 import de.format.salzzy.Rechnungsmanager.service.DocumentService;
 import de.format.salzzy.Rechnungsmanager.service.UserService;
 import org.springframework.data.domain.Sort;
@@ -17,10 +18,12 @@ public class DocumentController {
 
     private final DocumentService documentService;
     private final UserService userService;
+    private final ActivityService activityService;
 
-    public DocumentController(DocumentService documentService, UserService userService) {
+    public DocumentController(DocumentService documentService, UserService userService, ActivityService activityService) {
         this.documentService = documentService;
         this.userService = userService;
+        this.activityService = activityService;
     }
 
 
