@@ -114,14 +114,14 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public String saveFile(MultipartFile file) throws IOException, NoSuchAlgorithmException {
+	public String saveFile(MultipartFile file) throws IOException
+	{
 		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 		String documentPath = settingService.getSetting().getDocumentInvoicePath();
 		Document lastDocument = documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).get(0);
 		fileUploadUtils.saveFile(documentPath, fileName, file);
 		documentRepository.save(
 			new Document(
-				lastDocument.getHash(),
 				fileName,
 				documentPath,
 				userService.currentLoggedInUser()
@@ -136,6 +136,13 @@ public class DocumentServiceImpl implements DocumentService {
 		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 		String uploadPath = StringUtils.cleanPath(path);
 		fileUploadUtils.saveFile(uploadPath, fileName, file);
+		documentRepository.save(
+				new Document(
+						fileName,
+						uploadPath,
+						userService.currentLoggedInUser()
+				)
+		);
 		return uploadPath+file.getOriginalFilename();
 	}
 
