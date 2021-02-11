@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.persistence.*;
 
+import de.format.salzzy.Rechnungsmanager.model.Activity;
 import de.format.salzzy.Rechnungsmanager.model.Document;
 import de.format.salzzy.Rechnungsmanager.model.UserInfo;
 import de.format.salzzy.Rechnungsmanager.model.auth.Role;
@@ -50,6 +51,9 @@ public class User implements UserDetails{
 	@OneToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "role_id", referencedColumnName = "id")
 	private Role role;
+
+	@OneToMany(mappedBy = "receiver")
+	private Set<Activity> activitySet;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
