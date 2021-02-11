@@ -66,7 +66,7 @@ public class VerteilerController {
 			String docPath = documentService.saveFile(mpf);
 		} catch (IOException e) {
 			redirectAttributes.addFlashAttribute("error", "Es ist ein Fehler mit einer Datei oder dem Dateipfad unterlaufen.");
-			return "redrect:/verteilen";
+			return "redirect:/verteilen";
 		} catch (NoSuchAlgorithmException ex) {
 			redirectAttributes.addFlashAttribute("error", "Der Hash-Algorithmus konnte nicht ermittelt werden");
 			return "redirect:/verteilen";
