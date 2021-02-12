@@ -8,7 +8,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import de.format.salzzy.Rechnungsmanager.model.Document;
 import de.format.salzzy.Rechnungsmanager.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,15 +46,13 @@ public class VerteilerController {
 	@PreAuthorize("hasAnyRole('ROLE_FIBU')")
 	public String showDocuments(Model theModel)
 	{
-		File folder = new File(documentService.getPublicInvoiceDocumentPath());
-		List<String> fileNames = documentService.getFileNames(folder);
-		List<String> autoComplete = new ArrayList<String>();
-		
+		String documentPath = documentService.getPublicInvoiceDocumentPath();
+		List<Document> documents = documentService.getAllDocumentsByPath(documentPath);
 		List<User> users = userService.findAll();
-		users.stream().map(User::getUsername).forEach(autoComplete::add);
+		List<String> autoComplete = users.stream().map(User::getUsername).collect(Collectors.toList());
 		
 		theModel.addAttribute("users", autoComplete);
-		theModel.addAttribute("pdfs", fileNames);
+		theModel.addAttribute("documents", documents);
 		
 		return "app/verteilen/index";
 	}

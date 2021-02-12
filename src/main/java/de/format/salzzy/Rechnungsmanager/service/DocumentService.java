@@ -80,5 +80,13 @@ public interface DocumentService {
 	// utils folder of user => username/utils
 	List<Document> findAll(Sort sort);
 
+	/**
+	 * Gibt eine Liste mit allen Dokumenten zurück, die<br>
+	 * der Benutzer in seinem Ordner hat
+	 * @param path
+	 * @return List
+	 */
+	List<Document> getAllDocumentsByPath(String path);
+
 
 }

@@ -57,23 +57,10 @@ public class InvoiceController {
 	public String home(Model theModel, @RequestParam("name") Optional<String> name)
 	{
 		User user = userService.currentLoggedInUser();
-		String userFolderPath = documentService.getUserDocumentPath(user);
-		File userFolder = new File(userFolderPath);
-		File[] files = userFolder.listFiles();
-		List<String> fileNames = null;
-		Integer amountOfFiles = null;
+		String userPath = documentService.getUserDocumentPath(user);
+		List<Document> documents = documentService.getAllDocumentsByPath(userPath);
 
-		if (files != null) {
-			fileNames = Arrays.stream(files)
-					.map(File::getName)
-					.filter(fileName -> fileName.endsWith(".pdf"))
-					.collect(Collectors.toList());
-			amountOfFiles = fileNames.size();
-		}
-
-		theModel.addAttribute("pdfs", fileNames);
-		theModel.addAttribute("anzahl", amountOfFiles);
-
+		theModel.addAttribute("documents", documents);
 		return "app/rechnungen/index";
 	}
 	

@@ -118,7 +118,6 @@ public class DocumentServiceImpl implements DocumentService {
 	{
 		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 		String documentPath = settingService.getSetting().getDocumentInvoicePath();
-		Document lastDocument = documentRepository.findAll(Sort.by(Sort.Direction.ASC, "id")).get(0);
 		fileUploadUtils.saveFile(documentPath, fileName, file);
 		documentRepository.save(
 			new Document(
@@ -149,5 +148,10 @@ public class DocumentServiceImpl implements DocumentService {
 	@Override
 	public List<Document> findAll(Sort sort) {
 		return documentRepository.findAll(sort);
+	}
+
+	@Override
+	public List<Document> getAllDocumentsByPath(String path) {
+		return documentRepository.findAllByDocumentPathContaining(path);
 	}
 }

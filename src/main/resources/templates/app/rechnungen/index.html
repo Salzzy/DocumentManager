@@ -13,7 +13,7 @@
 					<div class="col-2"></div>
 					<div class="col-7 text-center">
 						<h1 class="h1">Folgende Rechnungen hast du in deinem Rechnungsordner</h1>
-						<h4 class="h4 text-muted">Aktuelle Rechnungen: <span th:text="${anzahl}"></span></h4>
+						<h4 class="h4 text-muted">Aktuelle Rechnungen: <span th:text="${#arrays.length(documents)}"></span></h4>
 					</div>
 					<div class="col-2">
 						<!--Dropdown primary-->
@@ -48,9 +48,9 @@
 
 				<div class="row mt-2">
 					<div class="col-12 text-center">
-						<p th:if="${pdfs == null or pdfs.empty}">Keine Rechnungen vorhanden!</p>
+						<p th:if="${documents == null or documents.empty}">Keine Rechnungen vorhanden!</p>
 						<!-- Frame indem die PDF geladen wird -->
-						<iframe th:if="${pdfs!=null and !pdfs.empty}" id="showPdf" th:src="'http://localhost:8080/pdf?name='+${pdfs[0]} +'&output=embed'"
+						<iframe th:if="${documents != null and !documents.empty}" id="showPdf" th:src="'http://localhost:8080/pdf?name='+${documents[0].getFileName()} +'&output=embed'"
 							style="width:600px; height:880px;" frameborder="0"></iframe>
 					</div>
 				</div>
@@ -68,7 +68,8 @@
 		<footer th:replace="fragmente/footer :: footer(~{::script})">
 			<!-- PDF Navigation -->
 			<script th:inline="javascript">
-				var list = [[${pdfs}]];
+				var documents = [[${documents}]];
+				console.log(documents);
 				var number = 0;
 
 				function changeImageNext(){
