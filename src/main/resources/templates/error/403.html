@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:replace="fragmente/head :: head(~{::title}, ~{})">
+    <title>Login - Rechnungsmanager</title>
+</head>
+
+<body class="login-page">
+<header th:replace="fragmente/menu :: menu"></header>
+
+<main>
+    <div class="container">
+        <div style="height: 90vh" class="row">
+            <div class="col-sm-12 col-md-10 col-lg-8 col-xl-6 mx-auto my-auto">
+                <h1 class="h1 h1-responsive text-white text-center"><i class="fab fa-expeditedssl fa-5x"></i></h1>
+                <h1 class="h1 h1-responsive text-white text-center">Ups, dir fehlen die Berechtigungen für den Zugriff auf diese Seite!</h1>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="fragmente/footer :: footer(~{})"></footer>
+</body>
+</html>

@@ -15,14 +15,14 @@
 						<li class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/rechnungen'} ? active">
 							<a class="nav-link" th:href="@{/rechnungen}">Rechnungen</a>
 						</li>
-						<li class="nav-item" sec:authorize="hasRole('ROLE_FIBU')" th:classappend="${#httpServletRequest.requestURI == '/verteilen'} ? active">
+						<li class="nav-item" sec:authorize="hasAnyRole('ROLE_FIBU', 'ROLE_ADMIN')" th:classappend="${#httpServletRequest.requestURI == '/verteilen'} ? active">
 							<a class="nav-link" th:href="@{/verteilen}">Verteilen</a>
 						</li>
-						<li class="nav-item" sec:authorize="hasRole('ROLE_FIBU')" th:classappend="${#httpServletRequest.requestURI == '/documents'} ? active">
+						<li class="nav-item" sec:authorize="hasAnyRole('ROLE_FIBU', 'ROLE_ADMIN')" th:classappend="${#httpServletRequest.requestURI == '/documents'} ? active">
 							<a class="nav-link" th:href="@{/documents}">Dokumente</a>
 						</li>
 						<li class="nav-item" th:classappend="${#httpServletRequest.requestURI == '/settings'} ? active">
-							<a class="nav-link" th:href="@{/settings}">Einstellungen</a>
+							<a class="nav-link" th:href="@{/settings}">Profileinstellungen</a>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" href="javascript:document.getElementById('logoutForm').submit();">Abmelden</a>
