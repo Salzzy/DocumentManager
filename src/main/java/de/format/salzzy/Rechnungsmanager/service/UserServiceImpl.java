@@ -33,9 +33,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void save(User user) {
+    	if (user.getRole() == null) {
+    		Role userRole = roleRepository.findById(1L).get();
+    		user.setRole(userRole);
+    		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		}
+    	if (user.getUserInfo() == null) {
+    		UserInfo userInfo = new UserInfo();
+    		user.setUserInfo(userInfo);
+		}
         userRepository.save(user);
     }
-
 
 	@Override
 	public void save(UserInfo userinfo) {
@@ -44,6 +52,19 @@ public class UserServiceImpl implements UserService {
     	userRepository.save(user);
 	}
 
+	@Override
+	public void deleteUserById(Long id) {
+		userRepository.deleteById(id);
+	}
+
+	@Override
+	public void saveDeleteUserById(Long id) {
+    	if (userRepository.findById(id).isPresent()) {
+			User user = userRepository.findById(id).get();
+			user.setEnabled(false);
+			userRepository.save(user);
+		}
+	}
 
 	@Override
 	public User currentLoggedInUser() {
@@ -55,7 +76,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username).get();
+		if(userRepository.findByUsername(username).isPresent()){
+			return userRepository.findByUsername(username).get();
+		}
+        return null;
     }
 
 
@@ -64,4 +88,8 @@ public class UserServiceImpl implements UserService {
 		return userRepository.findAll();
 	}
 
+	@Override
+	public List<User> findAllActiveUsers() {
+		return userRepository.findAllByIsEnabled(true);
+	}
 }

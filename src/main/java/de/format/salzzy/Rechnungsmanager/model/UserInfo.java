@@ -33,8 +33,9 @@ public class UserInfo {
 
 	@Column(name = "signature_file_name")
 	private String signatureFileName;
-	
-	@OneToOne(mappedBy = "userInfo")
+
+	@OneToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
 	public UserInfo(String email, String abteilung, String telefon, String signatureFileName, User user) {

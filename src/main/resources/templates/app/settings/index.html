@@ -25,6 +25,8 @@
 						<form id="profilForm" th:action="@{/settings/userinfo}" th:object="${userinfo}" method="POST">
 							<p class="h4 mb-4">Persönliche Daten:</p>
 
+							<input type="hidden" th:field="*{id}">
+
 							<div class="md-form">
 								<input type="email" id="email" name="email" th:field="*{email}" class="form-control mb-4" required>
 								<label for="email">E-Mail</label>
