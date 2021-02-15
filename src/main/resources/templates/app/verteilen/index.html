@@ -69,7 +69,7 @@
 									<tr th:each="document : ${documents}" th:id="${document.id}">
 										<td style="width: 40px;">
 											<label class="containerVerteiler">
-												<input class="rCheckboxes" type="checkbox" th:id="${document.id} + '_checkbox'" th:name="${document.fileName}">
+												<input class="rCheckboxes" type="checkbox" th:id="${document.fileName} + '_checkbox'" th:name="${document.fileName}">
 												<span class="checkmark"></span>
 											</label>
 										</td>
@@ -122,7 +122,7 @@
 
 					data.append('userName', username);
 					for (let i = 0; i < pdfs.length; i++) {
-						data.append('pdfList[]', pdfs[i]);
+						data.append('fileNameList[]', pdfs[i]);
 					}
 
 					let token = $('#_csrf').attr('content');
@@ -136,7 +136,7 @@
 						contentType: false,
 						statusCode: {
 							400: function (response) {
-								$('#error-alert').html("Mindestens 1 PDF muss ausgewählt sein.<br> Ausgewählt ist sie wenn ein Haken vor dem namen angezeigt wird.");
+								$('#error-alert').html("Mindestens 1 PDF muss ausgewählt sein.<br> Ausgewählt ist sie, wenn ein Haken vor dem namen angezeigt wird.");
 								$('#error-alert').css('display', 'block');
 							}
 						},
