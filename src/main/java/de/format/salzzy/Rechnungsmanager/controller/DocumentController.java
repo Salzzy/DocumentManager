@@ -1,5 +1,6 @@
 package de.format.salzzy.Rechnungsmanager.controller;
 
+import de.format.salzzy.Rechnungsmanager.model.Activity;
 import de.format.salzzy.Rechnungsmanager.model.Document;
 import de.format.salzzy.Rechnungsmanager.service.ActivityService;
 import de.format.salzzy.Rechnungsmanager.service.DocumentService;
@@ -32,7 +33,9 @@ public class DocumentController {
     {
         List<Document> documents = documentService.findAll(Sort.by(Sort.Direction.DESC, "id"));
 
-        model.addAttribute("documents", documents);
+        List<Activity> activities = activityService.finaAll(Sort.by(Sort.Direction.DESC, "id"));
+
+        model.addAttribute("documents", activities);
         return "app/documents/index";
     }
 

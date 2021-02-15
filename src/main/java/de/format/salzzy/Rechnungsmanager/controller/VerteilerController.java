@@ -11,8 +11,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import de.format.salzzy.Rechnungsmanager.model.Activity;
 import de.format.salzzy.Rechnungsmanager.model.Document;
+import de.format.salzzy.Rechnungsmanager.service.ActivityService;
 import de.format.salzzy.Rechnungsmanager.service.DocumentService;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +41,8 @@ public class VerteilerController {
 	private final DocumentService documentService;
 
 	@Autowired
-	public VerteilerController(UserService userService, DocumentService documentService)
+	public VerteilerController(UserService userService,
+							   DocumentService documentService)
 	{
 		this.userService = userService;
 		this.documentService = documentService;

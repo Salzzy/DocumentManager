@@ -27,4 +27,9 @@ public class ActivityServiceImpl implements ActivityService {
     public List<Activity> finaAll() {
         return activityRepository.findAll();
     }
+
+    @Override
+    public void save(Activity activity) {
+        activityRepository.save(activity);
+    }
 }

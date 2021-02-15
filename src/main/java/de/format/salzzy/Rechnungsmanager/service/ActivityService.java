@@ -20,4 +20,10 @@ public interface ActivityService {
      */
     List<Activity> finaAll(Sort sort);
 
+    /**
+     * Speichert eine acitivität
+     * @param activity neue Activity speichern
+     */
+    void save(Activity activity);
+
 }

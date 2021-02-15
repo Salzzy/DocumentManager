@@ -22,16 +22,12 @@
                 <table class="table table-striped table-bordered table-sm table-fixed">
                     <thead class="black white-text">
                     <tr>
-                        <th style="width: 100px;" scope="col">ID</th>
                         <th scope="col">Name</th>
-                        <th scope="col">Hash</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="document : ${documents}">
-                        <td th:text="${document.id}">
-                        <td th:text="${document.fileName}">
-                        <td th:text="${document.hash}">
+                    <tr th:each="activity : ${activities}">
+                        <td th:text="${activity.action}">
                     </tr>
                     </tbody>
                 </table>

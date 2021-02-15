@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import de.format.salzzy.Rechnungsmanager.Utils.FileUploadUtils;
+import de.format.salzzy.Rechnungsmanager.model.Activity;
 import de.format.salzzy.Rechnungsmanager.model.Document;
 import de.format.salzzy.Rechnungsmanager.repository.DocumentRepository;
 import jdk.nashorn.internal.runtime.options.Option;
@@ -32,18 +33,20 @@ public class DocumentServiceImpl implements DocumentService {
 	private final JavaMailSender javaMailSender;
 	private final SettingService settingService;
 	private final UserService userService;
+	private final ActivityService activityService;
 
 	private final DocumentRepository documentRepository;
 
 	private final FileUploadUtils fileUploadUtils;
 	
 	@Autowired
-	public DocumentServiceImpl(JavaMailSender javaMailSender, SettingService settingService, FileUploadUtils fileUploadUtils, DocumentRepository documentRepository, UserService userService) {
+	public DocumentServiceImpl(JavaMailSender javaMailSender, SettingService settingService, FileUploadUtils fileUploadUtils, DocumentRepository documentRepository, UserService userService, ActivityService activityService) {
 		this.javaMailSender = javaMailSender;
 		this.settingService = settingService;
 		this.fileUploadUtils = fileUploadUtils;
 		this.documentRepository = documentRepository;
 		this.userService = userService;
+		this.activityService = activityService;
 	}
 
 	@Override
@@ -187,6 +190,13 @@ public class DocumentServiceImpl implements DocumentService {
 			document.setDocumentPath(receiverFolderPath);
 			document.setStatus(2);
 			save(document);
+			activityService.save(
+				new Activity(
+						String.format("Die Rechnung %s wurde von der FIBU an %s gesendet.", document.getFileName(), receiver.getUsername()),
+						document,
+						receiver
+				)
+			);
 		}
 	}
 }
