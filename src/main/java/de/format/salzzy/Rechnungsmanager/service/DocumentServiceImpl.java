@@ -49,10 +49,6 @@ public class DocumentServiceImpl implements DocumentService {
 		return settingService.getSetting().getDocumentPath();
 	}
 
-	@Override
-	public String getPublicInvoiceDocumentPath() {
-		return settingService.getSetting().getDocumentPath() + "Rechnungen/";
-	}
 
 	@Override
 	public String getSystemDocumentPath() throws IOException {
@@ -61,24 +57,32 @@ public class DocumentServiceImpl implements DocumentService {
 		return systemPath.toString();
 	}
 
-	@Override
-	public String getUserDocumentUtilsPath(User user) {
-		return settingService.getSetting().getDocumentUserUtilPath(user);
-	}
 
 	@Override
-	public String getUserDocumentPath(User user) {
+	public String getPublicInvoiceDocumentPath() throws IOException {
+		Path invoicePath = Paths.get(settingService.getSetting().getDocumentPath() + "Rechnungen/");
+		Path invoiceSignedPath = Paths.get(settingService.getSetting().getDocumentPath() + "Rechnungen/Freigegeben/");
+
+		if(!Files.exists(invoicePath)) Files.createDirectories(invoiceSignedPath);
+
+		return settingService.getSetting().getDocumentPath() + "Rechnungen/";
+	}
+
+
+	@Override
+	public String getUserDocumentPath(User user) throws IOException {
 		Path docsFolder = Paths.get(settingService.getSetting().getDocumentPath());
 		Path docsUserUtilFolder = Paths.get(settingService.getSetting().getDocumentUserUtilPath(user));
 
-		try {
-			if (!Files.exists(docsFolder)) Files.createDirectory(docsFolder);
-			if (!Files.exists(docsUserUtilFolder)) Files.createDirectories(docsUserUtilFolder);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		if (!Files.exists(docsFolder)) Files.createDirectories(docsUserUtilFolder);
 
 		return settingService.getSetting().getDocumentUserPath(user);
+	}
+
+
+	@Override
+	public String getUserDocumentUtilsPath(User user) {
+		return settingService.getSetting().getDocumentUserUtilPath(user);
 	}
 
 
@@ -118,14 +122,17 @@ public class DocumentServiceImpl implements DocumentService {
 	{
 		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 		String documentPath = settingService.getSetting().getDocumentInvoicePath();
-		fileUploadUtils.saveFile(documentPath, fileName, file);
-		documentRepository.save(
+		Document document = documentRepository.save(
 			new Document(
 				fileName,
 				documentPath,
 				userService.currentLoggedInUser()
 			)
 		);
+		String uniqueFileName = String.format("%s %s", Long.toString(document.getId()), fileName);
+		document.setFileName(uniqueFileName);
+		documentRepository.save(document);
+		fileUploadUtils.saveFile(documentPath, uniqueFileName, file);
 
 		return documentPath+fileName;
 	}
@@ -134,14 +141,17 @@ public class DocumentServiceImpl implements DocumentService {
 	public String saveFile(MultipartFile file, String path) throws IOException {
 		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 		String uploadPath = StringUtils.cleanPath(path);
-		fileUploadUtils.saveFile(uploadPath, fileName, file);
-		documentRepository.save(
+		Document document = documentRepository.save(
 				new Document(
 						fileName,
 						uploadPath,
 						userService.currentLoggedInUser()
 				)
 		);
+		String uniqueFileName = String.format("%s %s", Long.toString(document.getId()), fileName);
+		document.setFileName(uniqueFileName);
+		documentRepository.save(document);
+		fileUploadUtils.saveFile(uploadPath, fileName, file);
 		return uploadPath+file.getOriginalFilename();
 	}
 
@@ -151,7 +161,7 @@ public class DocumentServiceImpl implements DocumentService {
 	}
 
 	@Override
-	public List<Document> getAllDocumentsByPath(String path) {
-		return documentRepository.findAllByDocumentPathContaining(path);
+	public List<Document> getAllDocumentsByStatus(Integer status) {
+		return documentRepository.findAllByStatus(status);
 	}
 }

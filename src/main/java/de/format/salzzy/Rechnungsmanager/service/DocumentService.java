@@ -20,17 +20,17 @@ public interface DocumentService {
 	String getDocumentPath();
 
 	/**
-	 * Hier werden die Rechnungen abgelegt, die von der FIBU
-	 * verteilt werden müssen
-	 * @return String
-	 */
-	String getPublicInvoiceDocumentPath();
-
-	/**
 	 * Hier ist allgemeine Dateien abgelegt wie stempel etc.
 	 * @return String
 	 */
 	String getSystemDocumentPath() throws IOException;
+
+	/**
+	 * Hier werden die Rechnungen abgelegt, die von der FIBU
+	 * verteilt werden müssen
+	 * @return String
+	 */
+	String getPublicInvoiceDocumentPath() throws IOException;
 
 	/**
 	 * Der User ordner, hier sind Rechnungen enthalten,
@@ -38,7 +38,7 @@ public interface DocumentService {
 	 * @param user
 	 * @return String
 	 */
-	String getUserDocumentPath(User user);
+	String getUserDocumentPath(User user) throws IOException;
 
 	/**
 	 * Der User utils ordner, signaturen etc enthalten
@@ -83,10 +83,10 @@ public interface DocumentService {
 	/**
 	 * Gibt eine Liste mit allen Dokumenten zurück, die<br>
 	 * der Benutzer in seinem Ordner hat
-	 * @param path
+	 * @param status Der status, auf der die Rechnung steht
 	 * @return List
 	 */
-	List<Document> getAllDocumentsByPath(String path);
+	List<Document> getAllDocumentsByStatus(Integer status);
 
 
 }
