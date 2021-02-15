@@ -1,5 +1,6 @@
 package de.format.salzzy.Rechnungsmanager.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.format.salzzy.Rechnungsmanager.model.auth.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

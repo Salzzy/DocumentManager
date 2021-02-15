@@ -1,6 +1,5 @@
 package de.format.salzzy.Rechnungsmanager.model;
 
-
 import de.format.salzzy.Rechnungsmanager.model.auth.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,20 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Timestamp;
 import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-
-import static com.google.common.io.Files.toByteArray;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Entity
 @Table(name = "documents")
@@ -42,6 +31,9 @@ public class Document {
     @Temporal(TemporalType.DATE)
     private Date timestamp;
 
+    @Column(name = "status", columnDefinition = "TINYINT(1)")
+    private Integer status;
+
     @ManyToOne
     @JoinColumn(name = "userId", nullable = true)
     private User owner;
@@ -54,6 +46,15 @@ public class Document {
         this.documentPath = documentPath;
         this.timestamp = new Date();
         this.owner = owner;
+        this.status = 1;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public Path toPath() {
+        return Paths.get(this.documentPath + this.fileName);
     }
 
 }

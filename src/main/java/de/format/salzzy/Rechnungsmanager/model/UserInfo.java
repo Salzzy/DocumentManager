@@ -34,15 +34,11 @@ public class UserInfo {
 	@Column(name = "signature_file_name")
 	private String signatureFileName;
 
-	@OneToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "user_id", nullable = false)
-	private User user;
 
-	public UserInfo(String email, String abteilung, String telefon, String signatureFileName, User user) {
+	public UserInfo(String email, String abteilung, String telefon, String signatureFileName) {
 		this.email = email;
 		this.abteilung = abteilung;
 		this.telefon = telefon;
 		this.signatureFileName = signatureFileName;
-		this.user = user;
 	}
 }

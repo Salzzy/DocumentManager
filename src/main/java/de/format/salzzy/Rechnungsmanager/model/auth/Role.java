@@ -31,9 +31,6 @@ public class Role {
     )
     private Set<Permission> permissions;
 
-    @OneToOne(mappedBy = "role")
-    private User user;
-
     public Set<SimpleGrantedAuthority> getGrantedAuthority() {
         Set<SimpleGrantedAuthority> permissions = getPermissions().stream()
                 .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))

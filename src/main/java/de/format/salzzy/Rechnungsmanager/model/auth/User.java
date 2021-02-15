@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import de.format.salzzy.Rechnungsmanager.model.Activity;
 import de.format.salzzy.Rechnungsmanager.model.Document;
 import de.format.salzzy.Rechnungsmanager.model.UserInfo;
@@ -28,10 +29,12 @@ public class User implements UserDetails{
     private Long id;
 	
 	private String username;
-	
+
+	@JsonIgnore
 	private String password;
 	
 	@Transient
+	@JsonIgnore
     private String passwordConfirm;
 
 	private boolean isAccountNonExpired;
@@ -42,22 +45,18 @@ public class User implements UserDetails{
 
 	private boolean isEnabled;
 	
-	@OneToOne(fetch = FetchType.LAZY,
-			cascade =  CascadeType.ALL,
-			mappedBy = "user")
+	@OneToOne(targetEntity = UserInfo.class, cascade =  CascadeType.ALL)
 	private UserInfo userInfo;
 
-	@OneToMany(mappedBy = "owner")
-	private Set<Document> document;
-
-	@OneToOne(cascade = CascadeType.MERGE)
-	@JoinColumn(name = "role_id", referencedColumnName = "id")
+	@OneToOne(targetEntity = Role.class, cascade = CascadeType.MERGE)
+	@JsonIgnore
 	private Role role;
 
 	@OneToMany(mappedBy = "receiver")
 	private Set<Activity> activitySet;
 
 	@Override
+	@JsonIgnore
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return getRole().getGrantedAuthority();
 	}
@@ -92,8 +91,4 @@ public class User implements UserDetails{
 		this.isEnabled = isEnabled;
 	}
 
-	public void setUserInfo(UserInfo userInfo) {
-		userInfo.setUser(this);
-		this.userInfo = userInfo;
-	}
 }
