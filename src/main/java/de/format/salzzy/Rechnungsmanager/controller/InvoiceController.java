@@ -29,15 +29,10 @@ import com.itextpdf.text.DocumentException;
 import de.format.salzzy.Rechnungsmanager.Utils.PdfStempeln;
 import de.format.salzzy.Rechnungsmanager.model.auth.User;
 import de.format.salzzy.Rechnungsmanager.service.UserService;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class InvoiceController {
-	
-	/*
-	 * Test Ordner in dem die PDF liegt
-	 * und alles andere passiert
-	 */
-	private static String FERTIG_DIR = "C:\\Users\\salzmann\\Desktop\\Test-Umgebung\\FIBU\\Rechnungen_Freigegeben\\";
 
 	private final UserService userService;
 	private final DocumentService documentService;
@@ -54,11 +49,16 @@ public class InvoiceController {
 
 	@GetMapping("/rechnungen")
 	@PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_FIBU', 'ROLE_ADMIN')")
-	public String home(Model theModel, @RequestParam("name") Optional<String> name)
+	public String index(Model theModel, RedirectAttributes redirectAttributes)
 	{
 		User user = userService.currentLoggedInUser();
-		String userPath = documentService.getUserDocumentPath(user);
-		List<Document> documents = documentService.getAllDocumentsByPath(userPath);
+		String userPath = null;
+		try {
+			userPath = documentService.getUserDocumentPath(user);
+		} catch (IOException e) {
+			redirectAttributes.addFlashAttribute("error", "Dein Benutzerorder konnte nicht ermittelt werden. <br>Wende dich an einen Administrator.");
+		}
+		List<Document> documents = documentService.getAllDocumentsByStatus(2);
 
 		theModel.addAttribute("documents", documents);
 		return "app/rechnungen/index";
@@ -68,10 +68,15 @@ public class InvoiceController {
 	@PostMapping("/rechnungUpload")
 	@PreAuthorize("hasAuthority('user:write')")
 	public String uploadRechnung(@RequestParam("file") MultipartFile file,
-								 @RequestParam("dateiName") String dateiName)
+								 RedirectAttributes redirectAttributes)
 	{
 		User user = userService.currentLoggedInUser();
-		String userFolder = documentService.getUserDocumentPath(user);
+		String userFolder = null;
+		try {
+			userFolder = documentService.getUserDocumentPath(user);
+		} catch (IOException e) {
+			redirectAttributes.addFlashAttribute("error", "Dein Benutzerorder konnte nicht ermittelt werden. <br>Wende dich an einen Administrator.");
+		}
 		String destinationFilePath = userFolder + "\\" + file.getOriginalFilename();
 		File fileDest = new File(destinationFilePath);
 
