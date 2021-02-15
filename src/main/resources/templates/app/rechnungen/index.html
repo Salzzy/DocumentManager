@@ -34,6 +34,15 @@
 					</div>
 				</div>
 
+				<div th:if="${error} != null" class="row">
+					<div class="col-12">
+						<div id="error-alert" class="alert alert-danger" role="alert">
+							<h4 class="h4 h4-responsive">Ein Fehler ist aufgetreten</h4>
+							<p>[[ ${error} ]]</p>
+						</div>
+					</div>
+				</div>
+
 				<hr>
 
 				<div class="row mt-2">
