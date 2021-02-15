@@ -3,6 +3,7 @@ package de.format.salzzy.Rechnungsmanager.controller;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -43,11 +44,15 @@ public class VerteilerController {
 
 
 	@GetMapping("/verteilen")
-	@PreAuthorize("hasAnyRole('ROLE_FIBU')")
-	public String showDocuments(Model theModel)
-	{
-		String documentPath = documentService.getPublicInvoiceDocumentPath();
-		List<Document> documents = documentService.getAllDocumentsByPath(documentPath);
+	@PreAuthorize("hasAnyRole('ROLE_FIBU', 'ROLE_ADMIN')")
+	public String showDocuments(Model theModel, RedirectAttributes redirectAttributes) {
+		String documentPath = null;
+		try {
+			documentPath = documentService.getPublicInvoiceDocumentPath();
+		} catch (IOException e) {
+			redirectAttributes.addFlashAttribute("error", "Der allgemeine Rechnungsordner konnte nicht gefunden/drauf zugegriffen werden.");
+		}
+		List<Document> documents = documentService.getAllDocumentsByStatus(1);
 		List<User> users = userService.findAll();
 		List<String> autoComplete = users.stream().map(User::getUsername).collect(Collectors.toList());
 		
@@ -81,7 +86,15 @@ public class VerteilerController {
 	public ResponseEntity<Long> deleteDocument(@RequestParam("pdfList[]") String[] pdfs)
 	{
 		Arrays.stream(pdfs)
-			.map(pdf -> Paths.get(documentService.getPublicInvoiceDocumentPath() + "\\" + pdf))
+			.map(pdf -> {
+				Path path = null;
+				try {
+					path = Paths.get(documentService.getPublicInvoiceDocumentPath() + "\\" + pdf);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				return path;
+			})
 			.forEach(pdf -> {
 				try {
 					Files.deleteIfExists(pdf);
@@ -89,6 +102,7 @@ public class VerteilerController {
 					e.printStackTrace();
 				}
 			});
+
 		return new ResponseEntity<>(1L, HttpStatus.OK);
 	}
 
@@ -97,8 +111,7 @@ public class VerteilerController {
 	@PreAuthorize("hasAnyAuthority('fibu:write')")
 	public String distributeDocument(@RequestParam("userName") String username,
 									 @RequestParam("pdfList[]") String[] pdfs,
-									 RedirectAttributes redirectAttributes)
-	{
+									 RedirectAttributes redirectAttributes) throws IOException {
 		User receiver = userService.findByUsername(username);
 		String receiverFolderPath = documentService.getUserDocumentPath(receiver);
 		File rechnungsFolder = new File(documentService.getPublicInvoiceDocumentPath());
@@ -109,7 +122,12 @@ public class VerteilerController {
 				String fileName = file.getName();
 				for (String pdf : pdfs) {
 					if (pdf.equals(fileName)) {
-						File source = new File(documentService.getPublicInvoiceDocumentPath() + "\\" + fileName);
+						File source = null;
+						try {
+							source = new File(documentService.getPublicInvoiceDocumentPath() + "\\" + fileName);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 						File dest = new File(receiverFolderPath + "\\" + pdf);
 						try {
 							Files.move(source.toPath(), dest.toPath());
