@@ -10,10 +10,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import de.format.salzzy.Rechnungsmanager.Utils.FileUploadUtils;
 import de.format.salzzy.Rechnungsmanager.model.Document;
 import de.format.salzzy.Rechnungsmanager.repository.DocumentRepository;
+import jdk.nashorn.internal.runtime.options.Option;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.mail.SimpleMailMessage;
@@ -87,22 +89,6 @@ public class DocumentServiceImpl implements DocumentService {
 
 
 	@Override
-	public List<String> getFileNames(File folder) {
-		File[] files = folder.listFiles();
-		List<String> fileNames = new ArrayList<String>();
-		// Speichere Pdf Namen in Liste
-		if(files != null) {
-			for(File f : files) {
-				if(f.getName().endsWith(".pdf")) {
-					String formatName = f.getName().replaceAll("\\s+", "_");
-					fileNames.add(formatName);
-				}
-			}
-		}
-		return fileNames;
-	}
-
-	@Override
 	public void sendNotification(User user, Integer anzahl) {
 		
 		SimpleDateFormat formatter = new SimpleDateFormat("HH:mm dd.MM.yyyy");  
@@ -116,6 +102,7 @@ public class DocumentServiceImpl implements DocumentService {
 		
 		javaMailSender.send(msg);
 	}
+
 
 	@Override
 	public String saveFile(MultipartFile file) throws IOException
@@ -137,6 +124,7 @@ public class DocumentServiceImpl implements DocumentService {
 		return documentPath+fileName;
 	}
 
+
 	@Override
 	public String saveFile(MultipartFile file, String path) throws IOException {
 		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
@@ -155,13 +143,50 @@ public class DocumentServiceImpl implements DocumentService {
 		return uploadPath+file.getOriginalFilename();
 	}
 
+
 	@Override
 	public List<Document> findAll(Sort sort) {
 		return documentRepository.findAll(sort);
 	}
 
+
 	@Override
 	public List<Document> getAllDocumentsByStatus(Integer status) {
 		return documentRepository.findAllByStatus(status);
+	}
+
+
+	@Override
+	public Document findDocumentById(Long id) {
+		Optional<Document> documentOptional = documentRepository.findById(id);
+		return documentOptional.orElse(null);
+	}
+
+
+	@Override
+	public void save(Document document) {
+		documentRepository.save(document);
+	}
+
+	@Override
+	public void delete(Document document) throws IOException {
+		documentRepository.delete(document);
+		Files.deleteIfExists(document.toPath());
+	}
+
+	@Override
+	public void move(List<Document> documents, User receiver) throws IOException {
+
+		String receiverFolderPath = getUserDocumentPath(receiver);
+
+		// Documente verschieben
+		for (Document document : documents) {
+			Path soruce = document.toPath();
+			Path destination = Paths.get(String.format("%s%s", receiverFolderPath, document.getFileName()));
+			Files.move(soruce, destination);
+			document.setDocumentPath(receiverFolderPath);
+			document.setStatus(2);
+			save(document);
+		}
 	}
 }

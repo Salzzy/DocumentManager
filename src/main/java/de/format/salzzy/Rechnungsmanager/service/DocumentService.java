@@ -10,6 +10,8 @@ import de.format.salzzy.Rechnungsmanager.model.auth.User;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.Doc;
+
 public interface DocumentService {
 
 	/**
@@ -48,12 +50,10 @@ public interface DocumentService {
 	String getUserDocumentUtilsPath(User user);
 
 	/**
-	 * Gibt eine Liste mit den Namen aller Dateien aus dem Ordner zurück.
-	 * @param folder Ordner in dem die Dateien gesucht werden
-	 * @return List<String>
+	 * Sendet eine Benachrichtigungsemail an den Empfänger
+	 * @param user
+	 * @param anzahl
 	 */
-	List<String> getFileNames(File folder);
-	
 	void sendNotification(User user, Integer anzahl);
 
 	/**
@@ -75,9 +75,12 @@ public interface DocumentService {
 	 */
 	String saveFile(MultipartFile file, String path) throws IOException;
 
-	// delete document
-
-	// utils folder of user => username/utils
+	/**
+	 * Gibt eine Liste aller Documentobjekte zurück<br>
+	 * nach bestimmten Sortierungen
+	 * @param sort
+	 * @return
+	 */
 	List<Document> findAll(Sort sort);
 
 	/**
@@ -88,5 +91,34 @@ public interface DocumentService {
 	 */
 	List<Document> getAllDocumentsByStatus(Integer status);
 
+	/**
+	 * Liefert eine Document mit übergebener Id zurück
+	 * @param id
+	 * @return
+	 */
+	Document findDocumentById(Long id);
+
+	/**
+	 * Speichert ein Document in der Datenbank ab
+	 * @param document
+	 */
+	void save(Document document);
+
+	/**
+	 * Löscht ein Document aus der Datenbank und dem<br>
+	 * Dateisystem
+	 * @param document
+	 * @throws IOException
+	 */
+	void delete(Document document) throws IOException;
+
+	/**
+	 * Verschiebt das Document in den Benutzerordner und setzt<br>
+	 * den Status des Documents auf 2
+	 * @param documents Liste mit Documents die verschoben werden
+	 * @param receiver Benutzer an den die Documente gehen
+	 * @return
+	 */
+	void move(List<Document> documents, User receiver) throws IOException;
 
 }

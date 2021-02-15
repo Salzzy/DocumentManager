@@ -29,6 +29,8 @@ import de.format.salzzy.Rechnungsmanager.service.UserService;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.print.Doc;
+
 @Controller
 public class VerteilerController {
 
@@ -110,45 +112,33 @@ public class VerteilerController {
 	@PostMapping("/verschieben")
 	@PreAuthorize("hasAnyAuthority('fibu:write')")
 	public String distributeDocument(@RequestParam("userName") String username,
-									 @RequestParam("pdfList[]") String[] pdfs,
-									 RedirectAttributes redirectAttributes) throws IOException {
+									 @RequestParam("fileNameList[]") String[] fileNameList,
+									 RedirectAttributes redirectAttributes)
+	{
 		User receiver = userService.findByUsername(username);
-		String receiverFolderPath = documentService.getUserDocumentPath(receiver);
-		File rechnungsFolder = new File(documentService.getPublicInvoiceDocumentPath());
-		File[] documents = rechnungsFolder.listFiles();
 
-		if (documents != null) {
-			Arrays.stream(documents).forEach(file -> {
-				String fileName = file.getName();
-				for (String pdf : pdfs) {
-					if (pdf.equals(fileName)) {
-						File source = null;
-						try {
-							source = new File(documentService.getPublicInvoiceDocumentPath() + "\\" + fileName);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-						File dest = new File(receiverFolderPath + "\\" + pdf);
-						try {
-							Files.move(source.toPath(), dest.toPath());
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			});
-			try {
-				documentService.sendNotification(receiver, pdfs.length);
-			} catch (NullPointerException e) {
-				redirectAttributes.addFlashAttribute("error", "Es konnte keine E-Mail an den Empfänger gesendet werden, <br> " +
-						"da er noch keine E-Mail mit seinem Account verknüpft hat.");
-				return "redirect:/verteilen";
-			}
+		// konvertieren von fileName zum Dokumentenobjekt
+		List<Document> documentList = Arrays.stream(fileNameList)
+				.map(fileName -> documentService.findDocumentById(Long.parseLong(fileName.split(" ")[0])))
+				.collect(Collectors.toList());
+
+		try {
+			documentService.move(documentList, receiver);
 		}
-		else {
-			redirectAttributes.addFlashAttribute("error", "Es wurden keine Dokumente zum weiterleiten gefunden.");
+		catch (IOException e) {
+			redirectAttributes.addFlashAttribute("error", "Eine Datei wurde nicht gefunden und konnte somit nicht verarbeitet werden.");
 			return "redirect:/verteilen";
 		}
+
+		try {
+			documentService.sendNotification(receiver, fileNameList.length);
+		}
+		catch (NullPointerException e) {
+			redirectAttributes.addFlashAttribute("error", "Es konnte keine E-Mail an den Empfänger gesendet werden, <br> " +
+					"da er noch keine E-Mail mit seinem Account verknüpft hat.");
+			return "redirect:/verteilen";
+		}
+
 		return "redirect:/verteilen";
 	}
 }
